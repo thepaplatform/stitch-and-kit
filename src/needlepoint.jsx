@@ -1422,13 +1422,25 @@ export default function NeedlepointDesigner() {
               ✨ Printable needlepoint pattern maker ✨
             </div>
           </div>
-          {/* Brand wordmark SVG. h1 for accessibility — sr-only label, image is decorative. */}
-          <h1 style={{ margin: 0, lineHeight: 1 }}>
-            <img
-              src="/brand/wordmark.svg"
-              alt="Stitch &amp; Kit"
-              style={{ width: '100%', maxWidth: 520, height: 'auto', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 4px 14px rgba(91,23,53,0.18))' }}
-            />
+          {/* Wordmark — Pacifico in a shimmering rainbow gradient that pops
+              against the pink/purple hero bg. The plain SVG wordmark blended
+              into the bg; this brings back the disco shimmer the brand started
+              with while keeping Stitch & Kit type-locked in Pacifico. */}
+          <h1 style={{
+            fontFamily: "'Pacifico', cursive",
+            fontSize: 'clamp(64px, 11vw, 144px)',
+            margin: 0,
+            lineHeight: 1,
+            background: 'linear-gradient(90deg, #FFFFFF 0%, #FCD34D 25%, #FFFFFF 50%, #A7F3D0 75%, #FFFFFF 100%)',
+            backgroundSize: '200% 100%',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            animation: 'shimmer 5s linear infinite',
+            filter: 'drop-shadow(0 6px 18px rgba(91,23,53,0.35))',
+            letterSpacing: '-0.01em',
+          }}>
+            Stitch &amp; Kit
           </h1>
         </div>
 
