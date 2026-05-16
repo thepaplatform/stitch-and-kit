@@ -66,6 +66,7 @@ export default function NeedlepointDesigner() {
   const fileInputRef = useRef(null);
   const refFileInputRef = useRef(null);
   const gridScrollRef = useRef(null);
+  const stitchPreviewRef = useRef(null);
   const isDrawingRef = useRef(false);
 
   const widthStitches = Math.max(4, Math.round(widthIn * mesh));
@@ -329,6 +330,71 @@ export default function NeedlepointDesigner() {
   useEffect(() => {
     if (image) processImage();
   }, [image, widthStitches, heightStitches, numColors, useBg, bgColor, refImage, smoothing, edgeSharpness, shape, useDMC, designScale, designOffsetX, inputMode, phraseTextColor, phraseBgColor, phraseBorderColor, processImage]);
+
+  // Count stitches with no same-color neighbor on any of the 4 sides —
+  // these are visually "scattered" loners that almost always look like
+  // noise rather than intentional detail in a finished piece.
+  const isolatedStitchCount = (() => {
+    if (!gridData) return 0;
+    let count = 0;
+    const h = gridData.length;
+    const w = gridData[0]?.length || 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const v = gridData[y][x];
+        if (v < 0) continue;
+        const up = y > 0 ? gridData[y-1][x] : -3;
+        const down = y < h - 1 ? gridData[y+1][x] : -3;
+        const left = x > 0 ? gridData[y][x-1] : -3;
+        const right = x < w - 1 ? gridData[y][x+1] : -3;
+        if (up !== v && down !== v && left !== v && right !== v) count++;
+      }
+    }
+    return count;
+  })();
+
+  // Stitch preview: render each cell as a small X (the way the finished
+  // piece will actually look stitched). Runs when in Preview mode and the
+  // canvas is mounted. Single canvas = fast even at 14k+ cells.
+  useEffect(() => {
+    if (viewMode !== 'preview' || editMode) return;
+    if (!gridData || !palette || palette.length === 0) return;
+    const cv = stitchPreviewRef.current;
+    if (!cv) return;
+    const h = gridData.length;
+    const w = gridData[0]?.length || 0;
+    // Render at 2× the display pixels for crispness on retina.
+    const DPI = 2;
+    cv.width = w * cellSize * DPI;
+    cv.height = h * cellSize * DPI;
+    cv.style.width = (w * cellSize) + 'px';
+    cv.style.height = (h * cellSize) + 'px';
+    const ctx = cv.getContext('2d');
+    ctx.scale(DPI, DPI);
+    // Faint canvas background — like the unstitched mesh peeking through.
+    ctx.fillStyle = '#FAF5F2';
+    ctx.fillRect(0, 0, w * cellSize, h * cellSize);
+    ctx.lineCap = 'round';
+    ctx.lineWidth = Math.max(1, cellSize * 0.38);
+    const pad = Math.max(0.5, cellSize * 0.14);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const v = gridData[y][x];
+        if (v < 0) continue;
+        const c = palette[v]?.hex;
+        if (!c) continue;
+        const cx = x * cellSize;
+        const cy = y * cellSize;
+        ctx.strokeStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(cx + pad, cy + pad);
+        ctx.lineTo(cx + cellSize - pad, cy + cellSize - pad);
+        ctx.moveTo(cx + cellSize - pad, cy + pad);
+        ctx.lineTo(cx + pad, cy + cellSize - pad);
+        ctx.stroke();
+      }
+    }
+  }, [viewMode, editMode, gridData, palette, cellSize]);
 
   const recountPalette = (grid) => {
     setPalette(prev => prev.map((p, i) => ({ ...p, count: grid.flat().filter(v => v === i).length })));
@@ -2043,6 +2109,15 @@ export default function NeedlepointDesigner() {
                           touchAction: editMode ? 'none' : 'auto',
                         }}
                       >
+                        {/* Stitched preview mode: a single canvas with X-stitches
+                            for each cell. Lets users see how the design will
+                            actually look stitched, not just as flat colored cells. */}
+                        {viewMode === 'preview' && !editMode ? (
+                          <canvas
+                            ref={stitchPreviewRef}
+                            style={{ display: 'block', borderRadius: 4 }}
+                          />
+                        ) : (
                         <div style={{
                           display: 'grid',
                           gridTemplateColumns: `repeat(${widthStitches}, ${cellSize}px)`,
@@ -2095,6 +2170,7 @@ export default function NeedlepointDesigner() {
                             );
                           })}
                         </div>
+                        )}
                         {showShape && (shape === 'circle' || shape === 'oval') && (
                           <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
                             viewBox={`0 0 ${widthStitches * cellSize} ${heightStitches * cellSize}`} preserveAspectRatio="none">
@@ -2115,12 +2191,26 @@ export default function NeedlepointDesigner() {
                 )}
 
                 <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-                  <div className="mono-font" style={{ fontSize: 11, color: '#831843', fontWeight: 700 }}>
-                    💎 {widthStitches} × {heightStitches} st · {widthIn.toFixed(2)}" × {heightIn.toFixed(2)}"
+                  <div className="mono-font" style={{ fontSize: 11, color: '#831843', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span>💎 {widthStitches} × {heightStitches} st · {widthIn.toFixed(2)}" × {heightIn.toFixed(2)}"</span>
                     {palette.length > 0 && (() => {
                       const total = palette.reduce((s, p) => s + p.count, 0);
-                      return <> · <span style={{ color: '#EC4899' }}>≈ {total.toLocaleString()} stitches to sew</span></>;
+                      return <span style={{ color: '#EC4899' }}>· ≈ {total.toLocaleString()} stitches to sew</span>;
                     })()}
+                    {isolatedStitchCount > 5 && (
+                      <button
+                        onClick={cleanupNow}
+                        title="Run a smoothing pass to merge scattered loner stitches into surrounding shapes"
+                        style={{
+                          border: '1.5px solid #EC4899', background: '#FCE7F3', color: '#831843',
+                          padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+                          cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4,
+                          fontFamily: 'Nunito, sans-serif',
+                        }}
+                      >
+                        ✨ {isolatedStitchCount} scattered — clean up
+                      </button>
+                    )}
                   </div>
                   <div className="mono-font" style={{ fontSize: 11, color: '#EC4899', minHeight: 16, fontWeight: 600 }}>
                     {hoveredCell && (
