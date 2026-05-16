@@ -610,7 +610,7 @@ export default function NeedlepointDesigner() {
     cv.width = widthStitches * scale + padding * 2;
     cv.height = heightStitches * scale + padding * 2 + legendH;
     const c = cv.getContext('2d');
-    c.fillStyle = '#fff5fa'; c.fillRect(0, 0, cv.width, cv.height);
+    c.fillStyle = '#ffffff'; c.fillRect(0, 0, cv.width, cv.height);
     c.fillStyle = '#5B1735'; c.font = 'bold 22px Georgia';
     const proj = PROJECTS[projectKey];
     const title = patternName || `${proj.name} Pattern`;
@@ -675,11 +675,8 @@ export default function NeedlepointDesigner() {
     page1.width = PAGE_W; page1.height = PAGE_H;
     const c1 = page1.getContext('2d');
     // Pretty background
-    const grad1 = c1.createLinearGradient(0, 0, PAGE_W, PAGE_H);
-    grad1.addColorStop(0, '#ffe6f5');
-    grad1.addColorStop(0.5, '#f5e6ff');
-    grad1.addColorStop(1, '#e6f5ff');
-    c1.fillStyle = grad1; c1.fillRect(0, 0, PAGE_W, PAGE_H);
+    // White page bg so users don't burn ink/toner on full-bleed color.
+    c1.fillStyle = '#ffffff'; c1.fillRect(0, 0, PAGE_W, PAGE_H);
     // Title
     c1.fillStyle = '#5B1735'; c1.font = 'bold 64px Georgia';
     c1.textAlign = 'center';
@@ -810,9 +807,8 @@ export default function NeedlepointDesigner() {
     const page4 = document.createElement('canvas');
     page4.width = PAGE_W; page4.height = PAGE_H;
     const c4 = page4.getContext('2d');
-    const grad4 = c4.createLinearGradient(0, 0, 0, PAGE_H);
-    grad4.addColorStop(0, '#ffe6f5'); grad4.addColorStop(1, '#fff5fa');
-    c4.fillStyle = grad4; c4.fillRect(0, 0, PAGE_W, PAGE_H);
+    // White page bg — see cover page note about ink/toner.
+    c4.fillStyle = '#ffffff'; c4.fillRect(0, 0, PAGE_W, PAGE_H);
     c4.fillStyle = '#5B1735'; c4.font = 'bold 40px Georgia';
     c4.textAlign = 'center';
     c4.fillText('🧵 Thread List', PAGE_W / 2, 70);
@@ -841,7 +837,9 @@ export default function NeedlepointDesigner() {
       if (yy > PAGE_H - 60) return; // overflow protection
       // alternating row bg
       if (i % 2 === 0) {
-        c4.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        // Subtle gray zebra stripe (was rgba-white over gradient; invisible on
+        // a pure white bg, so use a faint gray instead — barely any ink).
+        c4.fillStyle = 'rgba(0, 0, 0, 0.04)';
         c4.fillRect(tableX, yy - 22, colWidths.reduce((a, b) => a + b, 0), rowH - 4);
       }
       let x = tableX;
