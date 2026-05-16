@@ -55,6 +55,8 @@ export default function NeedlepointDesigner() {
   const [editingColorIdx, setEditingColorIdx] = useState(null);
   const [dmcSearch, setDmcSearch] = useState('');
   const [showProjectPicker, setShowProjectPicker] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showGlossary, setShowGlossary] = useState(false);
   const [showExportPicker, setShowExportPicker] = useState(false);
   const [zoomLevel, setZoomLevel] = useState('fit');
   const [containerWidth, setContainerWidth] = useState(typeof window !== 'undefined' ? Math.min(800, window.innerWidth - 80) : 350);
@@ -970,6 +972,44 @@ export default function NeedlepointDesigner() {
   const totalPreviewW = widthStitches + previewPaddingW * 2;
   const totalPreviewH = heightStitches + previewPaddingH * 2;
 
+  // Small (i) tooltip — click to toggle. Mobile-friendly (no hover required).
+  const InfoTip = ({ text }) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 6 }}>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
+          style={{
+            width: 17, height: 17, borderRadius: '50%',
+            border: '1.5px solid #831843', background: 'white',
+            color: '#831843', fontSize: 11, fontWeight: 800,
+            fontFamily: 'Georgia, serif', fontStyle: 'italic',
+            cursor: 'pointer', display: 'inline-flex',
+            alignItems: 'center', justifyContent: 'center',
+            padding: 0, flexShrink: 0, lineHeight: 1,
+          }}
+          aria-label="More info"
+        >i</button>
+        {open && (
+          <>
+            <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 998 }} />
+            <span style={{
+              position: 'absolute', top: 24, left: -8, zIndex: 999,
+              background: '#5B1735', color: 'white',
+              padding: '10px 14px', borderRadius: 12,
+              fontSize: 12, fontWeight: 500, lineHeight: 1.45,
+              width: 240, boxShadow: '0 12px 30px rgba(91,23,53,0.3)',
+              fontFamily: 'Nunito, sans-serif', letterSpacing: 0, textTransform: 'none',
+            }}>
+              {text}
+            </span>
+          </>
+        )}
+      </span>
+    );
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -1246,6 +1286,78 @@ export default function NeedlepointDesigner() {
 
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
+      {/* Help / how-it-works modal */}
+      {showHelp && (
+        <div className="modal-overlay" onClick={() => setShowHelp(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 620 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div className="display-font glitter-text" style={{ fontSize: 26 }}>✨ How Stitch &amp; Kit works</div>
+              <button onClick={() => setShowHelp(false)} className="btn-icon"><X size={18} /></button>
+            </div>
+            <div style={{ fontSize: 14, lineHeight: 1.6, color: '#5B1735' }}>
+              <div style={{ background: 'rgba(255,255,255,0.6)', padding: 16, borderRadius: 14, marginBottom: 14, border: '2px dashed #EC4899' }}>
+                <div className="body-font" style={{ fontWeight: 800, fontSize: 15, marginBottom: 8 }}>🚀 Three steps</div>
+                <div style={{ fontSize: 13 }}>
+                  <strong>1.</strong> Pick a project (belt logo, ornament, pillow, etc.) — this sets the mesh and size.<br/>
+                  <strong>2.</strong> Add your design — upload an image <em>or</em> type a phrase.<br/>
+                  <strong>3.</strong> Tweak the palette, edit by hand if you want, and export the printable bundle.
+                </div>
+              </div>
+
+              <div className="body-font" style={{ fontWeight: 800, fontSize: 14, color: '#831843', marginTop: 14, marginBottom: 6 }}>🖼️ Image mode</div>
+              <ul style={{ paddingLeft: 18, margin: '0 0 12px', fontSize: 13 }}>
+                <li>Upload any PNG/JPG. Each pixel snaps to the nearest DMC thread.</li>
+                <li>Use <strong>Color Reference</strong> to pull a palette from a second image.</li>
+                <li><strong>Smoothing</strong> cleans up scattered single stitches. <strong>Edge Sharpness</strong> controls how soft the color edges are.</li>
+              </ul>
+
+              <div className="body-font" style={{ fontWeight: 800, fontSize: 14, color: '#831843', marginBottom: 6 }}>💬 Phrase mode</div>
+              <ul style={{ paddingLeft: 18, margin: '0 0 12px', fontSize: 13 }}>
+                <li>Type your text — line breaks = new lines.</li>
+                <li>Pick a <strong>font</strong>: Chunky Block, Bold Serif, cursive, italic, lowercase, etc.</li>
+                <li>Pick a <strong>border</strong>: floral vine, hearts, scallop, gingham…</li>
+                <li>Color the <strong>text, background, border</strong>, and <strong>accent</strong> (the flowers/scallops on decorative borders).</li>
+                <li>Hit <strong>🎲 Surprise Me</strong> for a random combo, or tap a curated preset.</li>
+              </ul>
+
+              <div className="body-font" style={{ fontWeight: 800, fontSize: 14, color: '#831843', marginBottom: 6 }}>🎨 Editing colors</div>
+              <ul style={{ paddingLeft: 18, margin: '0 0 12px', fontSize: 13 }}>
+                <li>Tap any palette swatch to swap it for a different DMC thread.</li>
+                <li>Hit <strong>Edit</strong> to paint or erase individual stitches by hand.</li>
+                <li><strong>Cleanup ✨</strong> auto-smooths scattered loner stitches.</li>
+                <li><strong>Undo</strong> rolls back the last 30 actions.</li>
+              </ul>
+
+              <div className="body-font" style={{ fontWeight: 800, fontSize: 14, color: '#831843', marginBottom: 6 }}>💾 Exporting</div>
+              <ul style={{ paddingLeft: 18, margin: '0 0 14px', fontSize: 13 }}>
+                <li>Export bundle = 4 printable pages (cover, color chart, B&amp;W symbol chart, thread list).</li>
+                <li>Backgrounds are white to save printer ink.</li>
+                <li>On iPhone: scroll down after export — <strong>long-press</strong> each image to save to Photos/Files.</li>
+              </ul>
+
+              <button
+                onClick={() => setShowGlossary(g => !g)}
+                className="btn btn-sm"
+                style={{ width: '100%', justifyContent: 'space-between', background: '#FCE7F3', borderColor: '#831843' }}
+              >
+                <span>📚 New to needlepoint? Glossary</span>
+                <span>{showGlossary ? '▲' : '▼'}</span>
+              </button>
+
+              {showGlossary && (
+                <div style={{ background: 'rgba(255,255,255,0.7)', padding: 14, borderRadius: 12, marginTop: 10, fontSize: 13 }}>
+                  <p style={{ margin: '6px 0' }}><strong>Mesh</strong> — stitches per inch on the canvas. <strong>13 mesh</strong> = chunkier, faster to stitch. <strong>18 mesh</strong> = finer detail, smaller stitches.</p>
+                  <p style={{ margin: '6px 0' }}><strong>DMC</strong> — the most common embroidery floss brand. Every color has a number (e.g. <em>DMC 321 = Christmas Red</em>).</p>
+                  <p style={{ margin: '6px 0' }}><strong>Stretcher Bars</strong> — wooden frames you stretch your canvas on so it doesn't warp while you stitch. Sold in pairs by the inch.</p>
+                  <p style={{ margin: '6px 0' }}><strong>Canvas / Blank</strong> — the gridded fabric you stitch on. Belt blanks and key fobs come pre-cut to size; pillows need stretcher bars.</p>
+                  <p style={{ margin: '6px 0' }}><strong>Stitches to sew</strong> — roughly how many individual stitches you'll make. Rule of thumb: ~150-200 stitches per skein of floss on 18 mesh.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Project picker modal */}
       {showProjectPicker && (
         <div className="modal-overlay" onClick={() => setShowProjectPicker(false)}>
@@ -1452,12 +1564,24 @@ export default function NeedlepointDesigner() {
           }}>
             Stitch &amp; Kit
           </h1>
+          <button
+            onClick={() => setShowHelp(true)}
+            className="btn"
+            style={{
+              marginTop: 18,
+              background: 'rgba(255,255,255,0.92)',
+              borderColor: '#5B1735',
+              color: '#5B1735',
+            }}
+          >
+            ❓ How does this work?
+          </button>
         </div>
 
         <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 340px) 1fr', gap: 18 }}>
           <div className="sidebar-cards" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div className="card">
-              <div className="section-label"><Sparkles size={14} /> Project Type</div>
+              <div className="section-label"><Sparkles size={14} /> Project Type<InfoTip text="What you're making — sets the canvas mesh, dimensions, and shape automatically." /></div>
               <button className="btn" onClick={() => setShowProjectPicker(true)} style={{ width: '100%', justifyContent: 'space-between', padding: '12px 16px' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 22 }}>{proj.emoji}</span>
@@ -1470,7 +1594,7 @@ export default function NeedlepointDesigner() {
               </div>
               {proj.usesStretcherBars ? (
                 <div style={{ marginTop: 10, padding: 12, background: 'linear-gradient(135deg, #ffe6f5, #f5e6ff)', border: '2px solid #EC4899', borderRadius: 12 }}>
-                  <div className="body-font" style={{ fontSize: 11, fontWeight: 700, color: '#5B1735', marginBottom: 4 }}>🛒 Stretcher Bars</div>
+                  <div className="body-font" style={{ fontSize: 11, fontWeight: 700, color: '#5B1735', marginBottom: 4, display: 'flex', alignItems: 'center' }}>🛒 Stretcher Bars<InfoTip text="Wooden frames you stretch your canvas on so it doesn't warp while stitching. Buy 2 pairs at these sizes." /></div>
                   <div className="display-font" style={{ fontSize: 18, color: '#EC4899', lineHeight: 1.1 }}>
                     {stretcherBars.barW}" × {stretcherBars.barH}"
                   </div>
@@ -1741,24 +1865,25 @@ export default function NeedlepointDesigner() {
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 12, marginBottom: 14, padding: 10, background: useDMC ? 'linear-gradient(135deg, #ffe6f5, #f5e6ff)' : 'rgba(255,255,255,0.5)', borderRadius: 12, border: '2px solid #5B1735' }}>
                 <input type="checkbox" className="checkbox-cute" checked={useDMC} onChange={(e) => setUseDMC(e.target.checked)} />
                 <span className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>🧵 Snap to DMC threads</span>
+                <InfoTip text="DMC is the most common embroidery floss brand. When on, every color in your pattern maps to a real DMC thread number you can buy." />
               </label>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Colors</label>
+                  <label className="body-font" style={{ fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center' }}>Colors<InfoTip text="How many DMC threads to use. Fewer = simpler pattern, more uniform. More = closer match to your image but more skeins to buy." /></label>
                   <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{numColors}</span>
                 </div>
                 <input type="range" min="2" max="20" value={numColors} onChange={(e) => setNumColors(+e.target.value)} />
               </div>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Edges</label>
+                  <label className="body-font" style={{ fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center' }}>Edges<InfoTip text="How crisp color boundaries should be. Sharp = hard edges (good for logos). Soft = blended (better for photos)." /></label>
                   <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{['Soft','Normal','Sharp'][edgeSharpness]}</span>
                 </div>
                 <input type="range" min="0" max="2" value={edgeSharpness} onChange={(e) => setEdgeSharpness(+e.target.value)} />
               </div>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Smoothing</label>
+                  <label className="body-font" style={{ fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center' }}>Smoothing<InfoTip text="Cleans up scattered loner stitches. Higher = neater shapes but loses fine detail. Off = preserves every speck." /></label>
                   <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{['off','light','normal','heavy'][smoothing]}</span>
                 </div>
                 <input type="range" min="0" max="3" value={smoothing} onChange={(e) => setSmoothing(+e.target.value)} />
@@ -1992,6 +2117,10 @@ export default function NeedlepointDesigner() {
                 <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                   <div className="mono-font" style={{ fontSize: 11, color: '#831843', fontWeight: 700 }}>
                     💎 {widthStitches} × {heightStitches} st · {widthIn.toFixed(2)}" × {heightIn.toFixed(2)}"
+                    {palette.length > 0 && (() => {
+                      const total = palette.reduce((s, p) => s + p.count, 0);
+                      return <> · <span style={{ color: '#EC4899' }}>≈ {total.toLocaleString()} stitches to sew</span></>;
+                    })()}
                   </div>
                   <div className="mono-font" style={{ fontSize: 11, color: '#EC4899', minHeight: 16, fontWeight: 600 }}>
                     {hoveredCell && (

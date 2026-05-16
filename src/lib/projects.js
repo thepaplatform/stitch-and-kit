@@ -2,6 +2,7 @@
 
 export const PROJECTS = {
   belt: { name: 'Belt Logo', emoji: '👛', mesh: 18, widthIn: 2.5, heightIn: 1.22, shape: 'rectangle', note: 'Centered logo on a standard 1.25" belt blank', usesStretcherBars: false, finishNote: 'Belt blanks are pre-cut to size — you only stitch the logo area, the rest stays blank canvas. No stretcher bars needed.' },
+  belt_full: { name: 'Full Belt (36")', emoji: '👖', mesh: 18, widthIn: 36, heightIn: 1.22, shape: 'rectangle', note: 'Full 36" belt blank — see logo to scale on the whole belt', usesStretcherBars: false, finishNote: 'Use the Width offset slider in Size & Shape to move the logo placement along the belt. Most stitchers center it; some prefer slightly off-center.' },
   keyfob: { name: 'Key Fob', emoji: '🔑', mesh: 18, widthIn: 3, heightIn: 1, shape: 'rectangle', note: 'Slim rectangle for keychains', usesStretcherBars: false, finishNote: 'Key fob blanks come pre-sized. No stretcher bars needed — stitch in-hand.' },
   ornament_round: { name: 'Round Ornament', emoji: '🎄', mesh: 13, widthIn: 3.5, heightIn: 3.5, shape: 'circle', note: 'Classic round ornament', usesStretcherBars: true },
   ornament_oval: { name: 'Oval Ornament', emoji: '✨', mesh: 13, widthIn: 4, heightIn: 3, shape: 'oval', note: 'Oval ornament shape', usesStretcherBars: true },
