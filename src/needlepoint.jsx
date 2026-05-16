@@ -1201,6 +1201,18 @@ export default function NeedlepointDesigner() {
           z-index: 5;
           pointer-events: none;
         }
+        @media (min-width: 769px) {
+          /* Pin the design preview to the top of the viewport so it stays
+             visible while users scroll the sidebar settings. Without this,
+             editing project options pushes the design off-screen. */
+          .preview-area {
+            position: sticky;
+            top: 16px;
+            align-self: start;
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+          }
+        }
         @media (max-width: 768px) {
           .main-grid {
             grid-template-columns: 1fr !important;
@@ -1920,7 +1932,12 @@ export default function NeedlepointDesigner() {
                             let color = '#fff5fa';
                             if (isMasked) color = '#e8d5e8';
                             else if (!isEmpty) color = palette[v]?.hex || '#fff';
-                            const showNumber = viewMode === 'numbered' && !editMode && !isEmpty && !isMasked && cellSize >= 14;
+                            // Show palette symbol in Numbered mode. Lowered the
+                            // cellSize threshold from 14 → 7 so symbols are visible
+                            // even at Fit zoom on small designs (e.g. belt logos),
+                            // and switched from "v+1" indices to the canonical
+                            // SYMBOLS used in the printed chart for consistency.
+                            const showSymbol = viewMode === 'numbered' && !editMode && !isEmpty && !isMasked && cellSize >= 7;
                             const isPreview = viewMode === 'preview' && !editMode;
                             const borderRight = showGuides && (x + 1) % 10 === 0 && x !== widthStitches - 1 ? '1.5px solid #EC4899' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
                             const borderBottom = showGuides && (y + 1) % 10 === 0 && y !== heightStitches - 1 ? '1.5px solid #EC4899' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
@@ -1942,13 +1959,13 @@ export default function NeedlepointDesigner() {
                                   borderLeft: isPreview ? 'none' : (x === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
                                   width: cellSize, height: cellSize,
                                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  fontSize: Math.min(10, cellSize * 0.5), color: textColor,
+                                  fontSize: Math.max(6, Math.min(14, cellSize * 0.6)), color: textColor,
                                   fontFamily: 'Nunito, sans-serif', fontWeight: 700,
                                   userSelect: 'none', boxSizing: 'border-box',
                                   opacity: isMasked ? 0.5 : 1,
                                 }}
                               >
-                                {showNumber ? v + 1 : ''}
+                                {showSymbol ? SYMBOLS[v % SYMBOLS.length] : ''}
                               </div>
                             );
                           })}

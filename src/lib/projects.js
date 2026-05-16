@@ -1,17 +1,17 @@
 // Project presets (belts, ornaments, pillows, etc.) and stretcher bar logic.
 
 export const PROJECTS = {
-  belt: { name: 'Belt', emoji: '👛', mesh: 18, widthIn: 2.5, heightIn: 1.22, shape: 'rectangle', note: 'Standard 1.25" belt', usesStretcherBars: false, finishNote: 'Belt blanks are typically pre-cut to size and don\'t require stretcher bars. Stitch in-hand or with a small hoop.' },
+  belt: { name: 'Belt Logo', emoji: '👛', mesh: 18, widthIn: 2.5, heightIn: 1.22, shape: 'rectangle', note: 'Centered logo on a standard 1.25" belt blank', usesStretcherBars: false, finishNote: 'Belt blanks are pre-cut to size — you only stitch the logo area, the rest stays blank canvas. No stretcher bars needed.' },
   keyfob: { name: 'Key Fob', emoji: '🔑', mesh: 18, widthIn: 3, heightIn: 1, shape: 'rectangle', note: 'Slim rectangle for keychains', usesStretcherBars: false, finishNote: 'Key fob blanks come pre-sized. No stretcher bars needed — stitch in-hand.' },
   ornament_round: { name: 'Round Ornament', emoji: '🎄', mesh: 13, widthIn: 3.5, heightIn: 3.5, shape: 'circle', note: 'Classic round ornament', usesStretcherBars: true },
   ornament_oval: { name: 'Oval Ornament', emoji: '✨', mesh: 13, widthIn: 4, heightIn: 3, shape: 'oval', note: 'Oval ornament shape', usesStretcherBars: true },
   coaster: { name: 'Coaster', emoji: '🍸', mesh: 13, widthIn: 4, heightIn: 4, shape: 'square', note: 'Square coaster', usesStretcherBars: true },
-  phrase_pillow_sm: { name: 'Phrase Pillow (Small)', emoji: '💬', mesh: 10, widthIn: 10, heightIn: 6, shape: 'rectangle', note: 'Mini sayings pillow (~10×6")', usesStretcherBars: true },
-  phrase_pillow_md: { name: 'Phrase Pillow (Medium)', emoji: '💗', mesh: 10, widthIn: 12, heightIn: 8, shape: 'rectangle', note: 'Furbish-style sayings pillow', usesStretcherBars: true },
-  phrase_pillow_lg: { name: 'Phrase Pillow (Large)', emoji: '💋', mesh: 10, widthIn: 14, heightIn: 10, shape: 'rectangle', note: 'Larger landscape pillow', usesStretcherBars: true },
+  phrase_pillow_sm: { name: 'Phrase Pillow (Small)', emoji: '💬', mesh: 13, widthIn: 10, heightIn: 6, shape: 'rectangle', note: 'Mini sayings pillow (~10×6")', usesStretcherBars: true },
+  phrase_pillow_md: { name: 'Phrase Pillow (Medium)', emoji: '💗', mesh: 13, widthIn: 12, heightIn: 8, shape: 'rectangle', note: 'Furbish-style sayings pillow', usesStretcherBars: true },
+  phrase_pillow_lg: { name: 'Phrase Pillow (Large)', emoji: '💋', mesh: 13, widthIn: 14, heightIn: 10, shape: 'rectangle', note: 'Larger landscape pillow', usesStretcherBars: true },
   pillow_sm: { name: 'Square Pillow (Small)', emoji: '💕', mesh: 13, widthIn: 12, heightIn: 12, shape: 'square', note: 'Square throw pillow', usesStretcherBars: true },
   pillow_lg: { name: 'Square Pillow (Large)', emoji: '💖', mesh: 13, widthIn: 14, heightIn: 14, shape: 'square', note: 'Larger square throw pillow', usesStretcherBars: true },
-  stocking: { name: 'Stocking', emoji: '🎁', mesh: 10, widthIn: 8, heightIn: 14, shape: 'rectangle', note: 'Christmas stocking panel', usesStretcherBars: true },
+  stocking: { name: 'Stocking', emoji: '🎁', mesh: 13, widthIn: 8, heightIn: 14, shape: 'rectangle', note: 'Christmas stocking panel', usesStretcherBars: true },
   custom: { name: 'Custom', emoji: '⭐', mesh: 13, widthIn: 4, heightIn: 4, shape: 'rectangle', note: 'Make your own', usesStretcherBars: true },
 };
 
