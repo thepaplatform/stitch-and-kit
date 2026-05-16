@@ -1335,7 +1335,7 @@ export default function NeedlepointDesigner() {
               </div>
               <div>
                 <label className="body-font" style={{ fontSize: 11, fontWeight: 700, display: 'block', marginBottom: 4 }}>Shop / Designer Name</label>
-                <input type="text" className="text-input" placeholder="e.g. Stitch Babe Designs"
+                <input type="text" className="text-input" placeholder="e.g. Stitch &amp; Kit Designs"
                   value={shopName} onChange={(e) => setShopName(e.target.value)} />
               </div>
             </div>
@@ -1431,7 +1431,7 @@ export default function NeedlepointDesigner() {
             animation: 'shimmer 4s linear infinite',
             lineHeight: 1.1,
           }}>
-            Stitch Babe
+            Stitch &amp; Kit
           </h1>
         </div>
 

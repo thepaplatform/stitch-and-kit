@@ -1,4 +1,4 @@
-# Stitch Babe - Needlepoint Pattern Maker
+# Stitch &amp; Kit - Needlepoint Pattern Maker
 
 ## What this is
 A React component (single .jsx file, ~2700 lines) that converts images or typed phrases into needlepoint patterns with DMC thread matching, editable grids, and printable export bundles. Built as a Claude artifact, now being refactored.
