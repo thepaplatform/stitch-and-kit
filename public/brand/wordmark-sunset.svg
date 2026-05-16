@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 700" width="2000" height="700">
+  <defs>
+    
+    <linearGradient id="sunset" x1="0%" x2="100%" y2="0"><stop offset="0%" stop-color="#EC4899"></stop><stop offset="100%" stop-color="#FCD34D"></stop></linearGradient>
+  </defs>
+  <text x="1000" y="460" text-anchor="middle" font-family="Pacifico, cursive" font-size="340" fill="url(#sunset)" style="filter:drop-shadow(0 6px 12px rgba(236,72,153,.2))">Stitch &amp; Kit</text>
+</svg>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="600" height="200">
+  <defs>
+    
+    <linearGradient id="ebBg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EC4899"></stop>
+      <stop offset="100%" stop-color="#A855F7"></stop>
+    </linearGradient>
+    <linearGradient id="ebTx" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF"></stop>
+      <stop offset="100%" stop-color="#FCD34D"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="200" fill="url(#ebBg)"></rect>
+  <g fill="#FCD34D" opacity="0.8">
+    <circle cx="40" cy="40" r="3"></circle>
+    <circle cx="560" cy="50" r="3"></circle>
+    <circle cx="80" cy="160" r="2"></circle>
+    <circle cx="540" cy="150" r="2"></circle>
+  </g>
+  <text x="300" y="50" text-anchor="middle" class="eb" font-size="13" fill="#FFFFFF">✨  STITCH &amp; KIT NEWSLETTER  ✨</text>
+  <text x="300" y="138" text-anchor="middle" class="wm" font-size="78" fill="url(#ebTx)">Stitch &amp; Kit</text>
+  <text x="300" y="178" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="700" font-size="12" fill="#FFFFFF" letter-spacing="0.08em">cute patterns  ·  dropped weekly  ·  🎀</text>
+</svg>

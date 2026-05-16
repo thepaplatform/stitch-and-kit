@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    
+    <linearGradient id="ogBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EC4899"></stop>
+      <stop offset="100%" stop-color="#A855F7"></stop>
+    </linearGradient>
+    <linearGradient id="ogText" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF"></stop>
+      <stop offset="60%" stop-color="#FFFFFF"></stop>
+      <stop offset="100%" stop-color="#FCD34D"></stop>
+    </linearGradient>
+    <filter id="ogSh"><feGaussianBlur in="SourceAlpha" stdDeviation="4"></feGaussianBlur><feOffset dy="6" result="o"></feOffset><feComponentTransfer><feFuncA type="linear" slope="0.3"></feFuncA></feComponentTransfer><feMerge><feMergeNode></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#ogBg)"></rect>
+  
+  <g fill="#FCD34D" opacity="0.85">
+    <circle cx="120" cy="120" r="6"></circle>
+    <circle cx="80" cy="380" r="5"></circle>
+    <circle cx="1080" cy="160" r="7"></circle>
+    <circle cx="1120" cy="500" r="5"></circle>
+    <circle cx="220" cy="540" r="4"></circle>
+    <circle cx="960" cy="80" r="5"></circle>
+  </g>
+  <g fill="#FFFFFF" opacity="0.6">
+    <circle cx="180" cy="260" r="4"></circle>
+    <circle cx="1020" cy="320" r="5"></circle>
+    <circle cx="320" cy="100" r="3"></circle>
+  </g>
+  
+  <rect x="350" y="90" width="500" height="64" rx="32" fill="#FFFFFF"></rect>
+  <text x="600" y="132" text-anchor="middle" class="eb" font-size="22" fill="#EC4899">✨  NEEDLEPOINT PATTERN MAKER  ✨</text>
+  
+  <text x="600" y="370" text-anchor="middle" class="wm" font-size="200" fill="url(#ogText)" filter="url(#ogSh)">Stitch &amp; Kit</text>
+  
+  <text x="600" y="470" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="700" font-size="32" fill="#FFFFFF">the cutest needlepoint patterns on the internet 💖</text>
+  
+  <text x="600" y="580" text-anchor="middle" font-size="76">🎀</text>
+</svg>

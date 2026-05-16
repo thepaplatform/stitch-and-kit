@@ -585,14 +585,14 @@ export default function NeedlepointDesigner() {
       }
     }
     // Center crosshair
-    c.strokeStyle = '#ff1493'; c.lineWidth = 3;
+    c.strokeStyle = '#EC4899'; c.lineWidth = 3;
     const cx = offsetX + (w / 2) * scale;
     const cy = offsetY + (h / 2) * scale;
     c.beginPath(); c.moveTo(cx - 12, cy); c.lineTo(cx + 12, cy); c.stroke();
     c.beginPath(); c.moveTo(cx, cy - 12); c.lineTo(cx, cy + 12); c.stroke();
     // Shape outline
     if (drawShapeOutline && (sh === 'circle' || sh === 'oval')) {
-      c.strokeStyle = '#ff1493'; c.lineWidth = 3; c.setLineDash([8, 4]);
+      c.strokeStyle = '#EC4899'; c.lineWidth = 3; c.setLineDash([8, 4]);
       c.beginPath();
       c.ellipse(offsetX + (w * scale) / 2, offsetY + (h * scale) / 2, (w * scale) / 2, (h * scale) / 2, 0, 0, Math.PI * 2);
       c.stroke();
@@ -611,11 +611,11 @@ export default function NeedlepointDesigner() {
     cv.height = heightStitches * scale + padding * 2 + legendH;
     const c = cv.getContext('2d');
     c.fillStyle = '#fff5fa'; c.fillRect(0, 0, cv.width, cv.height);
-    c.fillStyle = '#1a0033'; c.font = 'bold 22px Georgia';
+    c.fillStyle = '#5B1735'; c.font = 'bold 22px Georgia';
     const proj = PROJECTS[projectKey];
     const title = patternName || `${proj.name} Pattern`;
     c.fillText(`${title} — ${widthStitches} × ${heightStitches} stitches`, padding, 35);
-    c.font = '14px Georgia'; c.fillStyle = '#7a3399';
+    c.font = '14px Georgia'; c.fillStyle = '#831843';
     c.fillText(`${widthIn.toFixed(2)}" × ${heightIn.toFixed(2)}" · ${mesh} mesh`, padding, 56);
 
     drawGridToContext(c, gridData, palette, scale, padding, padding + 30, {
@@ -624,21 +624,21 @@ export default function NeedlepointDesigner() {
     });
 
     const legendY = padding + 30 + heightStitches * scale + 30;
-    c.fillStyle = '#1a0033'; c.font = 'bold 16px Georgia';
+    c.fillStyle = '#5B1735'; c.font = 'bold 16px Georgia';
     c.fillText('DMC Floss Colors', padding, legendY);
     palette.forEach((p, i) => {
       const col = i % 2; const row = Math.floor(i / 2);
       const xPos = padding + col * 380; const y = legendY + 20 + row * 32;
       c.fillStyle = p.hex; c.fillRect(xPos, y, 28, 28);
-      c.strokeStyle = '#1a0033'; c.lineWidth = 1; c.strokeRect(xPos, y, 28, 28);
-      c.fillStyle = '#1a0033'; c.font = 'bold 13px Georgia';
+      c.strokeStyle = '#5B1735'; c.lineWidth = 1; c.strokeRect(xPos, y, 28, 28);
+      c.fillStyle = '#5B1735'; c.font = 'bold 13px Georgia';
       const label = p.dmc ? `${i + 1}. DMC ${p.dmc} — ${p.name}` : `${i + 1}. ${p.hex.toUpperCase()}`;
       c.fillText(label, xPos + 38, y + 14);
-      c.font = '11px Georgia'; c.fillStyle = '#7a3399';
+      c.font = '11px Georgia'; c.fillStyle = '#831843';
       c.fillText(`${p.count} stitches`, xPos + 38, y + 27);
     });
     if (shopName) {
-      c.fillStyle = '#c084f5'; c.font = 'italic 12px Georgia';
+      c.fillStyle = '#A855F7'; c.font = 'italic 12px Georgia';
       c.fillText(`© ${shopName}`, padding, cv.height - 12);
     }
     setExportStatus('working');
@@ -681,13 +681,13 @@ export default function NeedlepointDesigner() {
     grad1.addColorStop(1, '#e6f5ff');
     c1.fillStyle = grad1; c1.fillRect(0, 0, PAGE_W, PAGE_H);
     // Title
-    c1.fillStyle = '#1a0033'; c1.font = 'bold 64px Georgia';
+    c1.fillStyle = '#5B1735'; c1.font = 'bold 64px Georgia';
     c1.textAlign = 'center';
     c1.fillText(title, PAGE_W / 2, 200);
-    c1.font = 'italic 28px Georgia'; c1.fillStyle = '#c084f5';
+    c1.font = 'italic 28px Georgia'; c1.fillStyle = '#A855F7';
     c1.fillText(`✨ Needlepoint Pattern ✨`, PAGE_W / 2, 250);
     if (shopName) {
-      c1.font = '20px Georgia'; c1.fillStyle = '#7a3399';
+      c1.font = '20px Georgia'; c1.fillStyle = '#831843';
       c1.fillText(`by ${shopName}`, PAGE_W / 2, 290);
     }
     // Preview of design (color, no symbols)
@@ -707,10 +707,10 @@ export default function NeedlepointDesigner() {
     // Info box
     c1.textAlign = 'left';
     const infoY = previewY + previewH + 80;
-    c1.fillStyle = '#fff'; c1.strokeStyle = '#1a0033'; c1.lineWidth = 3;
+    c1.fillStyle = '#fff'; c1.strokeStyle = '#5B1735'; c1.lineWidth = 3;
     c1.fillRect(margin, infoY, PAGE_W - margin * 2, 360);
     c1.strokeRect(margin, infoY, PAGE_W - margin * 2, 360);
-    c1.fillStyle = '#1a0033'; c1.font = 'bold 24px Georgia';
+    c1.fillStyle = '#5B1735'; c1.font = 'bold 24px Georgia';
     c1.fillText('📋 Pattern Details', margin + 30, infoY + 45);
 
     c1.font = '20px Georgia';
@@ -730,7 +730,7 @@ export default function NeedlepointDesigner() {
     });
 
     // Footer
-    c1.fillStyle = '#7a3399'; c1.font = 'italic 16px Georgia';
+    c1.fillStyle = '#831843'; c1.font = 'italic 16px Georgia';
     c1.textAlign = 'center';
     c1.fillText('💖 For personal use only · Do not redistribute 💖', PAGE_W / 2, PAGE_H - 60);
     if (shopName) {
@@ -749,10 +749,10 @@ export default function NeedlepointDesigner() {
     page2.width = PAGE_W; page2.height = PAGE_H;
     const c2 = page2.getContext('2d');
     c2.fillStyle = '#ffffff'; c2.fillRect(0, 0, PAGE_W, PAGE_H);
-    c2.fillStyle = '#1a0033'; c2.font = 'bold 36px Georgia';
+    c2.fillStyle = '#5B1735'; c2.font = 'bold 36px Georgia';
     c2.textAlign = 'center';
     c2.fillText('Color Chart', PAGE_W / 2, 60);
-    c2.font = '16px Georgia'; c2.fillStyle = '#7a3399';
+    c2.font = '16px Georgia'; c2.fillStyle = '#831843';
     c2.fillText(`${title} · ${widthStitches} × ${heightStitches} stitches · ${mesh} mesh`, PAGE_W / 2, 90);
 
     const chartScale2 = Math.min(
@@ -767,7 +767,7 @@ export default function NeedlepointDesigner() {
       useSymbols: false, bw: false, showGuides10: true,
       drawShapeOutline: true, sh: shape,
     });
-    c2.textAlign = 'center'; c2.fillStyle = '#7a3399'; c2.font = 'italic 14px Georgia';
+    c2.textAlign = 'center'; c2.fillStyle = '#831843'; c2.font = 'italic 14px Georgia';
     c2.fillText(`Bold lines every 10 stitches · Pink crosshair marks center`, PAGE_W / 2, chartY2 + chartH2 + 35);
     if (shopName) {
       c2.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 30);
@@ -813,10 +813,10 @@ export default function NeedlepointDesigner() {
     const grad4 = c4.createLinearGradient(0, 0, 0, PAGE_H);
     grad4.addColorStop(0, '#ffe6f5'); grad4.addColorStop(1, '#fff5fa');
     c4.fillStyle = grad4; c4.fillRect(0, 0, PAGE_W, PAGE_H);
-    c4.fillStyle = '#1a0033'; c4.font = 'bold 40px Georgia';
+    c4.fillStyle = '#5B1735'; c4.font = 'bold 40px Georgia';
     c4.textAlign = 'center';
     c4.fillText('🧵 Thread List', PAGE_W / 2, 70);
-    c4.font = '18px Georgia'; c4.fillStyle = '#7a3399';
+    c4.font = '18px Georgia'; c4.fillStyle = '#831843';
     c4.fillText(`${palette.length} DMC floss colors · ${palette.reduce((s, p) => s + p.count, 0).toLocaleString()} total stitches`, PAGE_W / 2, 105);
 
     // Table
@@ -826,13 +826,13 @@ export default function NeedlepointDesigner() {
     const colWidths = [80, 140, 380, 180, 150]; // Symbol, DMC#, Name, Hex, Stitches
     const headers = ['Symbol', 'DMC #', 'Color Name', 'Hex', 'Stitches'];
     c4.textAlign = 'left';
-    c4.fillStyle = '#1a0033'; c4.font = 'bold 18px Georgia';
+    c4.fillStyle = '#5B1735'; c4.font = 'bold 18px Georgia';
     let xPos = tableX;
     headers.forEach((h, i) => {
       c4.fillText(h, xPos + 10, tableY);
       xPos += colWidths[i];
     });
-    c4.strokeStyle = '#1a0033'; c4.lineWidth = 2;
+    c4.strokeStyle = '#5B1735'; c4.lineWidth = 2;
     c4.beginPath(); c4.moveTo(tableX, tableY + 10); c4.lineTo(tableX + colWidths.reduce((a, b) => a + b, 0), tableY + 10); c4.stroke();
 
     c4.font = '17px Georgia';
@@ -849,7 +849,7 @@ export default function NeedlepointDesigner() {
       c4.fillStyle = '#000'; c4.font = 'bold 28px Georgia'; c4.textAlign = 'center';
       c4.fillText(SYMBOLS[i % SYMBOLS.length], x + colWidths[0] / 2, yy + 5);
       x += colWidths[0];
-      c4.textAlign = 'left'; c4.font = 'bold 17px Georgia'; c4.fillStyle = '#1a0033';
+      c4.textAlign = 'left'; c4.font = 'bold 17px Georgia'; c4.fillStyle = '#5B1735';
       // DMC #
       c4.fillText(p.dmc || '—', x + 10, yy + 4);
       x += colWidths[1];
@@ -859,16 +859,16 @@ export default function NeedlepointDesigner() {
       x += colWidths[2];
       // Hex swatch + code
       c4.fillStyle = p.hex; c4.fillRect(x + 10, yy - 16, 32, 32);
-      c4.strokeStyle = '#1a0033'; c4.lineWidth = 1; c4.strokeRect(x + 10, yy - 16, 32, 32);
-      c4.fillStyle = '#1a0033'; c4.font = '15px Georgia';
+      c4.strokeStyle = '#5B1735'; c4.lineWidth = 1; c4.strokeRect(x + 10, yy - 16, 32, 32);
+      c4.fillStyle = '#5B1735'; c4.font = '15px Georgia';
       c4.fillText(p.hex.toUpperCase(), x + 50, yy + 4);
       x += colWidths[3];
       // Stitches
-      c4.fillStyle = '#7a3399'; c4.font = 'bold 17px Georgia';
+      c4.fillStyle = '#831843'; c4.font = 'bold 17px Georgia';
       c4.fillText(p.count.toLocaleString(), x + 10, yy + 4);
     });
 
-    c4.textAlign = 'center'; c4.fillStyle = '#7a3399'; c4.font = 'italic 14px Georgia';
+    c4.textAlign = 'center'; c4.fillStyle = '#831843'; c4.font = 'italic 14px Georgia';
     c4.fillText('💕 Buy DMC floss by number at any craft store · 1 skein covers ~150-200 stitches on 18 mesh 💕', PAGE_W / 2, PAGE_H - 50);
     if (shopName) {
       c4.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 25);
@@ -975,23 +975,23 @@ export default function NeedlepointDesigner() {
   return (
     <div style={{
       minHeight: '100vh',
+      // Brand kit hero gradient: pink → violet → lavender, with sun/heart accent washes.
       background: `
-        radial-gradient(circle at 10% 20%, #ff6ec4 0%, transparent 40%),
-        radial-gradient(circle at 90% 10%, #7873f5 0%, transparent 40%),
-        radial-gradient(circle at 50% 80%, #ffd93d 0%, transparent 35%),
-        radial-gradient(circle at 80% 90%, #4adfe8 0%, transparent 40%),
-        linear-gradient(135deg, #ffb3d9 0%, #c084f5 50%, #6ec4f5 100%)
+        radial-gradient(circle at 10% 20%, #FF1A8C 0%, transparent 42%),
+        radial-gradient(circle at 90% 10%, #A855F7 0%, transparent 42%),
+        radial-gradient(circle at 50% 85%, #FCD34D 0%, transparent 35%),
+        linear-gradient(135deg, #EC4899 0%, #C56BE0 50%, #A855F7 100%)
       `,
       backgroundAttachment: 'fixed',
-      fontFamily: '"Fredoka", "Quicksand", system-ui, sans-serif',
+      fontFamily: '"Nunito", system-ui, sans-serif',
       padding: '16px 8px',
-      color: '#1a0033',
+      color: '#5B1735',
       position: 'relative',
       overflowX: 'hidden',
       overflowY: 'auto',
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Cinzel:wght@700;900&family=Playfair+Display:ital,wght@0,900;1,900&family=Dancing+Script:wght@700&family=Lobster&family=Bebas+Neue&family=Permanent+Marker&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&family=VT323&family=Cinzel:wght@700;900&family=Playfair+Display:ital,wght@0,900;1,900&family=Dancing+Script:wght@700&family=Lobster&family=Bebas+Neue&family=Permanent+Marker&display=swap');
         body { margin: 0; }
         * { -webkit-tap-highlight-color: transparent; }
         @keyframes sparkle {
@@ -1011,8 +1011,8 @@ export default function NeedlepointDesigner() {
           50% { transform: rotate(3deg); }
         }
         .display-font { font-family: 'Pacifico', cursive; }
-        .body-font { font-family: 'Fredoka', sans-serif; }
-        .mono-font { font-family: 'Fredoka', monospace; font-weight: 500; }
+        .body-font { font-family: 'Nunito', sans-serif; }
+        .mono-font { font-family: 'Nunito', monospace; font-weight: 500; }
         .sparkle-bg {
           position: absolute; pointer-events: none; font-size: 24px;
           animation: sparkle 3s infinite;
@@ -1025,52 +1025,52 @@ export default function NeedlepointDesigner() {
         }
         input[type="range"]::-webkit-slider-thumb {
           -webkit-appearance: none; width: 26px; height: 26px;
-          background: linear-gradient(135deg, #ff6ec4, #c084f5);
+          background: linear-gradient(135deg, #ff6ec4, #A855F7);
           border-radius: 50%; cursor: pointer; border: 3px solid #fff;
           box-shadow: 0 0 15px rgba(255, 110, 196, 0.8), 0 0 4px #fff inset;
         }
         input[type="range"]::-moz-range-thumb {
           width: 26px; height: 26px;
-          background: linear-gradient(135deg, #ff6ec4, #c084f5);
+          background: linear-gradient(135deg, #ff6ec4, #A855F7);
           border-radius: 50%; cursor: pointer; border: 3px solid #fff;
           box-shadow: 0 0 15px rgba(255, 110, 196, 0.8);
         }
         .btn {
-          padding: 10px 16px; border: 2.5px solid #1a0033; background: #fff;
-          color: #1a0033; font-family: 'Fredoka', sans-serif;
+          padding: 10px 16px; border: 2.5px solid #5B1735; background: #fff;
+          color: #5B1735; font-family: 'Nunito', sans-serif;
           font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
           display: inline-flex; align-items: center; gap: 6px;
-          border-radius: 999px; box-shadow: 3px 3px 0 #1a0033;
+          border-radius: 999px; box-shadow: 3px 3px 0 #5B1735;
         }
-        .btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #1a0033; }
-        .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #1a0033; }
-        .btn.active { background: linear-gradient(135deg, #ff6ec4, #c084f5); color: #fff; }
+        .btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #5B1735; }
+        .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #5B1735; }
+        .btn.active { background: linear-gradient(135deg, #ff6ec4, #A855F7); color: #fff; }
         .btn-primary {
-          background: linear-gradient(135deg, #ff1493, #ff6ec4, #c084f5);
+          background: linear-gradient(135deg, #EC4899, #ff6ec4, #A855F7);
           background-size: 200% 200%; color: #fff; font-weight: 700;
           animation: shimmer 3s linear infinite;
         }
         .btn-sm { padding: 7px 12px; font-size: 10px; font-weight: 600; }
         .btn-icon {
-          padding: 8px; border: 2.5px solid #1a0033; background: #fff;
-          border-radius: 50%; cursor: pointer; box-shadow: 2px 2px 0 #1a0033;
+          padding: 8px; border: 2.5px solid #5B1735; background: #fff;
+          border-radius: 50%; cursor: pointer; box-shadow: 2px 2px 0 #5B1735;
           display: inline-flex; align-items: center; justify-content: center;
-          color: #1a0033;
+          color: #5B1735;
         }
-        .btn-icon:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #1a0033; }
+        .btn-icon:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #5B1735; }
         .card {
           background: rgba(255, 255, 255, 0.92);
           backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-          border: 3px solid #1a0033; padding: 18px; border-radius: 24px;
-          box-shadow: 5px 5px 0 #1a0033, 0 0 40px rgba(255, 110, 196, 0.3);
+          border: 3px solid #5B1735; padding: 18px; border-radius: 24px;
+          box-shadow: 5px 5px 0 #5B1735, 0 0 40px rgba(255, 110, 196, 0.3);
           position: relative;
         }
         .section-label {
-          font-family: 'Fredoka', sans-serif; font-size: 12px; font-weight: 700;
+          font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700;
           letter-spacing: 0.08em; text-transform: uppercase;
-          background: linear-gradient(90deg, #ff1493, #c084f5);
+          background: linear-gradient(90deg, #EC4899, #A855F7);
           -webkit-background-clip: text; background-clip: text;
           -webkit-text-fill-color: transparent;
           display: flex; align-items: center; gap: 6px; margin-bottom: 12px;
@@ -1081,7 +1081,7 @@ export default function NeedlepointDesigner() {
         }
         .palette-swatch:active { transform: scale(0.95); }
         .palette-swatch.selected {
-          outline: 3px solid #ff1493; outline-offset: 3px;
+          outline: 3px solid #EC4899; outline-offset: 3px;
           box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
         }
         .modal-overlay {
@@ -1092,18 +1092,18 @@ export default function NeedlepointDesigner() {
         }
         .modal {
           background: linear-gradient(135deg, #fff5fa 0%, #ffe6f5 100%);
-          border: 3px solid #1a0033; padding: 24px;
+          border: 3px solid #5B1735; padding: 24px;
           max-width: 440px; width: 100%; max-height: 90vh; overflow: auto;
           border-radius: 28px;
-          box-shadow: 8px 8px 0 #1a0033, 0 0 60px rgba(255, 110, 196, 0.6);
+          box-shadow: 8px 8px 0 #5B1735, 0 0 60px rgba(255, 110, 196, 0.6);
         }
         .text-input {
-          font-family: 'Fredoka', sans-serif; font-size: 14px;
-          padding: 10px 14px; border: 2.5px solid #1a0033; background: #fff;
-          color: #1a0033; width: 100%; box-sizing: border-box;
-          border-radius: 14px; box-shadow: 3px 3px 0 #1a0033;
+          font-family: 'Nunito', sans-serif; font-size: 14px;
+          padding: 10px 14px; border: 2.5px solid #5B1735; background: #fff;
+          color: #5B1735; width: 100%; box-sizing: border-box;
+          border-radius: 14px; box-shadow: 3px 3px 0 #5B1735;
         }
-        .text-input:focus { outline: none; border-color: #ff1493; box-shadow: 3px 3px 0 #ff1493; }
+        .text-input:focus { outline: none; border-color: #EC4899; box-shadow: 3px 3px 0 #EC4899; }
         .dmc-list {
           max-height: 380px; overflow-y: auto; margin-top: 12px;
           padding: 4px; background: rgba(255, 255, 255, 0.6); border-radius: 16px;
@@ -1114,25 +1114,25 @@ export default function NeedlepointDesigner() {
         }
         .dmc-item:hover { background: rgba(255, 110, 196, 0.2); }
         .dmc-swatch {
-          width: 32px; height: 32px; border: 2px solid #1a0033;
+          width: 32px; height: 32px; border: 2px solid #5B1735;
           border-radius: 8px; flex-shrink: 0;
         }
         .project-card {
-          padding: 14px; border: 2.5px solid #1a0033; background: #fff;
+          padding: 14px; border: 2.5px solid #5B1735; background: #fff;
           cursor: pointer; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
           display: flex; gap: 12px; align-items: center;
-          border-radius: 18px; box-shadow: 3px 3px 0 #1a0033;
+          border-radius: 18px; box-shadow: 3px 3px 0 #5B1735;
         }
         .project-card.active {
           background: linear-gradient(135deg, #ffe6f5, #f5e6ff);
-          border-color: #ff1493; box-shadow: 3px 3px 0 #ff1493;
+          border-color: #EC4899; box-shadow: 3px 3px 0 #EC4899;
         }
         .project-emoji {
           font-size: 36px; flex-shrink: 0;
           width: 56px; height: 56px;
           display: flex; align-items: center; justify-content: center;
           background: linear-gradient(135deg, #fff5fa, #ffe6f5);
-          border: 2px solid #1a0033; border-radius: 14px;
+          border: 2px solid #5B1735; border-radius: 14px;
         }
         .bow {
           position: absolute; font-size: 32px; z-index: 2;
@@ -1143,25 +1143,25 @@ export default function NeedlepointDesigner() {
           animation: float 5s infinite ease-in-out;
         }
         .glitter-text {
-          background: linear-gradient(90deg, #ff1493, #ffd93d, #c084f5, #4adfe8, #ff1493);
+          background: linear-gradient(90deg, #EC4899, #ffd93d, #A855F7, #4adfe8, #EC4899);
           background-size: 200% 100%;
           -webkit-background-clip: text; background-clip: text;
           -webkit-text-fill-color: transparent;
           animation: shimmer 4s linear infinite;
         }
         .holo-border {
-          background: linear-gradient(135deg, #ff6ec4, #ffd93d, #4adfe8, #c084f5);
+          background: linear-gradient(135deg, #ff6ec4, #ffd93d, #4adfe8, #A855F7);
           background-size: 200% 200%;
           animation: shimmer 5s linear infinite;
           padding: 3px; border-radius: 999px; display: inline-block;
         }
         .checkbox-cute {
           appearance: none; width: 22px; height: 22px;
-          border: 2.5px solid #1a0033; border-radius: 6px; background: #fff;
+          border: 2.5px solid #5B1735; border-radius: 6px; background: #fff;
           cursor: pointer; position: relative;
-          box-shadow: 2px 2px 0 #1a0033; flex-shrink: 0;
+          box-shadow: 2px 2px 0 #5B1735; flex-shrink: 0;
         }
-        .checkbox-cute:checked { background: linear-gradient(135deg, #ff6ec4, #c084f5); }
+        .checkbox-cute:checked { background: linear-gradient(135deg, #ff6ec4, #A855F7); }
         .checkbox-cute:checked::after {
           content: '✓'; position: absolute; color: #fff;
           font-weight: 800; font-size: 16px;
@@ -1169,12 +1169,12 @@ export default function NeedlepointDesigner() {
         }
         .canvas-margin {
           position: absolute;
-          border: 3px dashed #c084f5;
+          border: 3px dashed #A855F7;
           pointer-events: none;
         }
         .design-area {
           position: absolute;
-          border: 3px solid #ff1493;
+          border: 3px solid #EC4899;
           pointer-events: none;
         }
         /* Scrollable grid container - critical for mobile */
@@ -1183,7 +1183,7 @@ export default function NeedlepointDesigner() {
           max-width: 100%;
           padding: 14px;
           background: linear-gradient(135deg, #fff5fa, #f0e6ff);
-          border: 2.5px solid #1a0033;
+          border: 2.5px solid #5B1735;
           border-radius: 16px;
           box-shadow: inset 0 0 20px rgba(255, 110, 196, 0.15);
           -webkit-overflow-scrolling: touch;
@@ -1194,12 +1194,12 @@ export default function NeedlepointDesigner() {
           top: 4px;
           right: 12px;
           font-size: 10px;
-          color: #ff1493;
+          color: #EC4899;
           font-weight: 700;
           background: rgba(255, 255, 255, 0.9);
           padding: 3px 8px;
           border-radius: 999px;
-          border: 1.5px solid #ff1493;
+          border: 1.5px solid #EC4899;
           z-index: 5;
           pointer-events: none;
         }
@@ -1256,10 +1256,10 @@ export default function NeedlepointDesigner() {
                   <div className="project-emoji">{p.emoji}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="body-font" style={{ fontSize: 18, fontWeight: 700 }}>{p.name}</div>
-                    <div className="mono-font" style={{ fontSize: 11, color: '#c084f5', marginTop: 2, fontWeight: 600 }}>
+                    <div className="mono-font" style={{ fontSize: 11, color: '#A855F7', marginTop: 2, fontWeight: 600 }}>
                       {p.mesh} mesh · {p.widthIn}" × {p.heightIn}" · {p.shape}
                     </div>
-                    <div style={{ fontSize: 11, color: '#7a3399', marginTop: 2 }}>{p.note}</div>
+                    <div style={{ fontSize: 11, color: '#831843', marginTop: 2 }}>{p.note}</div>
                   </div>
                 </div>
               ))}
@@ -1278,12 +1278,12 @@ export default function NeedlepointDesigner() {
                 <X size={18} />
               </button>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: 14, background: 'rgba(255, 255, 255, 0.6)', borderRadius: 16, border: '2px dashed #ff1493' }}>
-              <div style={{ width: 60, height: 60, background: palette[editingColorIdx].hex, border: '2.5px solid #1a0033', borderRadius: 12, boxShadow: '3px 3px 0 #1a0033', flexShrink: 0 }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: 14, background: 'rgba(255, 255, 255, 0.6)', borderRadius: 16, border: '2px dashed #EC4899' }}>
+              <div style={{ width: 60, height: 60, background: palette[editingColorIdx].hex, border: '2.5px solid #5B1735', borderRadius: 12, boxShadow: '3px 3px 0 #5B1735', flexShrink: 0 }} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="body-font" style={{ fontWeight: 700, fontSize: 14 }}>Color {editingColorIdx + 1}</div>
                 {palette[editingColorIdx].dmc && (
-                  <div className="mono-font" style={{ fontSize: 12, color: '#7a3399', marginTop: 2, fontWeight: 600 }}>
+                  <div className="mono-font" style={{ fontSize: 12, color: '#831843', marginTop: 2, fontWeight: 600 }}>
                     DMC {palette[editingColorIdx].dmc} — {palette[editingColorIdx].name}
                   </div>
                 )}
@@ -1300,13 +1300,13 @@ export default function NeedlepointDesigner() {
                 <div key={c.dmc} className="dmc-item" onClick={() => pickDmcForColor(editingColorIdx, c)}>
                   <div className="dmc-swatch" style={{ background: c.hex }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="body-font" style={{ fontSize: 13, fontWeight: 700, color: '#1a0033' }}>DMC {c.dmc}</div>
-                    <div style={{ fontSize: 11, color: '#7a3399', marginTop: 1 }}>{c.name}</div>
+                    <div className="body-font" style={{ fontSize: 13, fontWeight: 700, color: '#5B1735' }}>DMC {c.dmc}</div>
+                    <div style={{ fontSize: 11, color: '#831843', marginTop: 1 }}>{c.name}</div>
                   </div>
                 </div>
               ))}
               {filteredDMC.length === 0 && (
-                <div style={{ padding: 20, textAlign: 'center', color: '#7a3399', fontSize: 13 }}>
+                <div style={{ padding: 20, textAlign: 'center', color: '#831843', fontSize: 13 }}>
                   No colors match "{dmcSearch}" 💔
                 </div>
               )}
@@ -1326,7 +1326,7 @@ export default function NeedlepointDesigner() {
               </button>
             </div>
 
-            <div style={{ marginBottom: 16, padding: 14, background: 'rgba(255, 255, 255, 0.7)', borderRadius: 14, border: '2px solid #c084f5' }}>
+            <div style={{ marginBottom: 16, padding: 14, background: 'rgba(255, 255, 255, 0.7)', borderRadius: 14, border: '2px solid #A855F7' }}>
               <div className="section-label" style={{ marginBottom: 8 }}>Pattern Info (optional)</div>
               <div style={{ marginBottom: 10 }}>
                 <label className="body-font" style={{ fontSize: 11, fontWeight: 700, display: 'block', marginBottom: 4 }}>Pattern Name</label>
@@ -1345,7 +1345,7 @@ export default function NeedlepointDesigner() {
                 padding: 14, marginBottom: 12, borderRadius: 14,
                 background: exportStatus === 'error' ? 'linear-gradient(135deg, #ffe0e0, #ffd0d0)' : 'linear-gradient(135deg, #e0ffe0, #d0ffd0)',
                 border: `2px solid ${exportStatus === 'error' ? '#ff4444' : '#1a9933'}`,
-                fontSize: 13, fontWeight: 600, color: '#1a0033',
+                fontSize: 13, fontWeight: 600, color: '#5B1735',
                 display: 'flex', alignItems: 'center', gap: 10,
               }}>
                 <span style={{ fontSize: 20 }}>
@@ -1355,7 +1355,7 @@ export default function NeedlepointDesigner() {
               </div>
             )}
 
-            <div style={{ padding: 12, marginBottom: 14, background: 'rgba(255, 200, 100, 0.15)', borderRadius: 12, border: '1.5px dashed #c084f5', fontSize: 11, color: '#7a3399', lineHeight: 1.5, fontWeight: 500 }}>
+            <div style={{ padding: 12, marginBottom: 14, background: 'rgba(255, 200, 100, 0.15)', borderRadius: 12, border: '1.5px dashed #A855F7', fontSize: 11, color: '#831843', lineHeight: 1.5, fontWeight: 500 }}>
               📱 <strong>On iPhone/iPad?</strong> Downloads sometimes don't go through silently. After generating, scroll down to see each page as an image — <strong>long-press to save to Photos or Files</strong>. That always works.
             </div>
 
@@ -1363,34 +1363,34 @@ export default function NeedlepointDesigner() {
               <button className="btn btn-primary" onClick={exportPatternBundle} disabled={exportStatus === 'working'} style={{ width: '100%', justifyContent: 'center', padding: '14px', opacity: exportStatus === 'working' ? 0.5 : 1 }}>
                 <FileText size={16} />{exportStatus === 'working' ? 'Working...' : 'Full Pattern Bundle ✨'}
               </button>
-              <div style={{ fontSize: 11, color: '#7a3399', lineHeight: 1.5, padding: '0 8px' }}>
+              <div style={{ fontSize: 11, color: '#831843', lineHeight: 1.5, padding: '0 8px' }}>
                 4 letter-sized pages (150 dpi): cover page with details, color chart, B&W symbol chart, thread list. Combine into a PDF using Canva, Pages, or Acrobat.
               </div>
 
-              <div style={{ height: 1, background: '#c084f5', margin: '8px 0' }} />
+              <div style={{ height: 1, background: '#A855F7', margin: '8px 0' }} />
 
               <button className="btn" onClick={exportPreviewPNG} disabled={exportStatus === 'working'} style={{ width: '100%', justifyContent: 'center', opacity: exportStatus === 'working' ? 0.5 : 1 }}>
                 <Download size={14} />Quick Preview PNG
               </button>
-              <div style={{ fontSize: 11, color: '#7a3399', lineHeight: 1.5, padding: '0 8px' }}>
+              <div style={{ fontSize: 11, color: '#831843', lineHeight: 1.5, padding: '0 8px' }}>
                 Single PNG with chart + DMC legend. Good for personal use.
               </div>
             </div>
 
             {exportedImages.length > 0 && (
-              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '2px dashed #c084f5' }}>
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '2px dashed #A855F7' }}>
                 <div className="display-font glitter-text" style={{ fontSize: 22, marginBottom: 8 }}>
                   📸 Your pattern files
                 </div>
-                <div style={{ padding: 12, marginBottom: 14, background: 'linear-gradient(135deg, #fff5e6, #ffe6f5)', borderRadius: 12, border: '2px solid #ff1493', fontSize: 12, color: '#1a0033', lineHeight: 1.5, fontWeight: 600 }}>
+                <div style={{ padding: 12, marginBottom: 14, background: 'linear-gradient(135deg, #fff5e6, #ffe6f5)', borderRadius: 12, border: '2px solid #EC4899', fontSize: 12, color: '#5B1735', lineHeight: 1.5, fontWeight: 600 }}>
                   💡 <strong>Save method that always works:</strong><br/>
                   • <strong>iPhone/iPad:</strong> Long-press an image → "Save to Photos" or "Add to Files"<br/>
                   • <strong>Desktop:</strong> Right-click → "Save image as..."<br/>
                   • <strong>Android:</strong> Long-press → "Download image"
                 </div>
                 {exportedImages.map((img, i) => img && (
-                  <div key={i} style={{ marginBottom: 16, padding: 10, background: '#fff', border: '2px solid #1a0033', borderRadius: 14, boxShadow: '3px 3px 0 #1a0033' }}>
-                    <div className="mono-font" style={{ fontSize: 11, fontWeight: 700, color: '#7a3399', marginBottom: 8, textAlign: 'center' }}>
+                  <div key={i} style={{ marginBottom: 16, padding: 10, background: '#fff', border: '2px solid #5B1735', borderRadius: 14, boxShadow: '3px 3px 0 #5B1735' }}>
+                    <div className="mono-font" style={{ fontSize: 11, fontWeight: 700, color: '#831843', marginBottom: 8, textAlign: 'center' }}>
                       {img.name}
                     </div>
                     <img
@@ -1401,7 +1401,7 @@ export default function NeedlepointDesigner() {
                         height: 'auto',
                         display: 'block',
                         borderRadius: 8,
-                        border: '1px solid #c084f5',
+                        border: '1px solid #A855F7',
                       }}
                     />
                   </div>
@@ -1418,20 +1418,17 @@ export default function NeedlepointDesigner() {
           <div className="star-deco" style={{ top: 20, left: '15%' }}>⭐</div>
           <div className="star-deco" style={{ top: 30, right: '15%', animationDelay: '1.5s' }}>💖</div>
           <div className="holo-border" style={{ marginBottom: 14, marginTop: 30 }}>
-            <div style={{ padding: '6px 18px', background: '#fff', borderRadius: 999, fontSize: 10, fontFamily: 'Fredoka', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1a0033' }}>
+            <div style={{ padding: '6px 18px', background: '#fff', borderRadius: 999, fontSize: 10, fontFamily: 'Nunito', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5B1735' }}>
               ✨ Printable needlepoint pattern maker ✨
             </div>
           </div>
-          <h1 className="display-font" style={{
-            fontSize: 48, margin: 0,
-            background: 'linear-gradient(90deg, #ff1493 0%, #c084f5 35%, #4adfe8 70%, #ffd93d 100%)',
-            backgroundSize: '200% 100%',
-            WebkitBackgroundClip: 'text', backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            animation: 'shimmer 4s linear infinite',
-            lineHeight: 1.1,
-          }}>
-            Stitch &amp; Kit
+          {/* Brand wordmark SVG. h1 for accessibility — sr-only label, image is decorative. */}
+          <h1 style={{ margin: 0, lineHeight: 1 }}>
+            <img
+              src="/brand/wordmark.svg"
+              alt="Stitch &amp; Kit"
+              style={{ width: '100%', maxWidth: 520, height: 'auto', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 4px 14px rgba(91,23,53,0.18))' }}
+            />
           </h1>
         </div>
 
@@ -1444,25 +1441,25 @@ export default function NeedlepointDesigner() {
                   <span style={{ fontSize: 22 }}>{proj.emoji}</span>
                   <span style={{ fontSize: 14, fontWeight: 700 }}>{proj.name}</span>
                 </span>
-                <span style={{ fontSize: 11, color: '#c084f5', fontWeight: 700 }}>change ›</span>
+                <span style={{ fontSize: 11, color: '#A855F7', fontWeight: 700 }}>change ›</span>
               </button>
-              <div className="mono-font" style={{ fontSize: 11, color: '#7a3399', marginTop: 10, fontWeight: 600, textAlign: 'center' }}>
+              <div className="mono-font" style={{ fontSize: 11, color: '#831843', marginTop: 10, fontWeight: 600, textAlign: 'center' }}>
                 💕 {proj.mesh} mesh · {widthStitches} × {heightStitches} st 💕
               </div>
               {proj.usesStretcherBars ? (
-                <div style={{ marginTop: 10, padding: 12, background: 'linear-gradient(135deg, #ffe6f5, #f5e6ff)', border: '2px solid #ff1493', borderRadius: 12 }}>
-                  <div className="body-font" style={{ fontSize: 11, fontWeight: 700, color: '#1a0033', marginBottom: 4 }}>🛒 Stretcher Bars</div>
-                  <div className="display-font" style={{ fontSize: 18, color: '#ff1493', lineHeight: 1.1 }}>
+                <div style={{ marginTop: 10, padding: 12, background: 'linear-gradient(135deg, #ffe6f5, #f5e6ff)', border: '2px solid #EC4899', borderRadius: 12 }}>
+                  <div className="body-font" style={{ fontSize: 11, fontWeight: 700, color: '#5B1735', marginBottom: 4 }}>🛒 Stretcher Bars</div>
+                  <div className="display-font" style={{ fontSize: 18, color: '#EC4899', lineHeight: 1.1 }}>
                     {stretcherBars.barW}" × {stretcherBars.barH}"
                   </div>
-                  <div className="mono-font" style={{ fontSize: 10, color: '#7a3399', marginTop: 4, fontWeight: 500, lineHeight: 1.4 }}>
+                  <div className="mono-font" style={{ fontSize: 10, color: '#831843', marginTop: 4, fontWeight: 500, lineHeight: 1.4 }}>
                     Buy 2 pairs ({stretcherBars.barW}" + {stretcherBars.barH}") · {stretcherBars.isMini ? '½" mini bars OK' : 'use ¾"–1" regular bars'} · 2" margin per side
                   </div>
                 </div>
               ) : (
-                <div style={{ marginTop: 10, padding: 12, background: 'linear-gradient(135deg, #fff5e6, #ffe6f5)', border: '2px solid #ff1493', borderRadius: 12 }}>
-                  <div className="body-font" style={{ fontSize: 11, fontWeight: 700, color: '#1a0033', marginBottom: 4 }}>👛 {proj.name} Blank</div>
-                  <div className="mono-font" style={{ fontSize: 10, color: '#7a3399', marginTop: 2, fontWeight: 500, lineHeight: 1.4 }}>
+                <div style={{ marginTop: 10, padding: 12, background: 'linear-gradient(135deg, #fff5e6, #ffe6f5)', border: '2px solid #EC4899', borderRadius: 12 }}>
+                  <div className="body-font" style={{ fontSize: 11, fontWeight: 700, color: '#5B1735', marginBottom: 4 }}>👛 {proj.name} Blank</div>
+                  <div className="mono-font" style={{ fontSize: 10, color: '#831843', marginTop: 2, fontWeight: 500, lineHeight: 1.4 }}>
                     {proj.finishNote}
                   </div>
                 </div>
@@ -1470,9 +1467,9 @@ export default function NeedlepointDesigner() {
             </div>
 
             <div className="card">
-              <div className="section-label"><Heart size={14} fill="#ff1493" /> 01 · Source</div>
+              <div className="section-label"><Heart size={14} fill="#EC4899" /> 01 · Source</div>
               {/* Mode toggle: Image upload vs Text/phrase pillow maker */}
-              <div style={{ display: 'flex', gap: 6, marginBottom: 14, background: 'rgba(255,255,255,0.6)', padding: 4, borderRadius: 14, border: '2px solid #1a0033' }}>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 14, background: 'rgba(255,255,255,0.6)', padding: 4, borderRadius: 14, border: '2px solid #5B1735' }}>
                 <button
                   className={`btn btn-sm ${inputMode === 'image' ? 'active' : ''}`}
                   onClick={() => setInputMode('image')}
@@ -1503,7 +1500,7 @@ export default function NeedlepointDesigner() {
                     <Upload size={14} />{image ? 'Replace Image' : 'Upload Image ✨'}
                   </button>
                   {imageName && (
-                    <div style={{ fontSize: 11, marginTop: 10, color: '#7a3399', fontWeight: 500, wordBreak: 'break-all', textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, marginTop: 10, color: '#831843', fontWeight: 500, wordBreak: 'break-all', textAlign: 'center' }}>
                       💖 {imageName}
                     </div>
                   )}
@@ -1512,7 +1509,7 @@ export default function NeedlepointDesigner() {
                 <>
                   <div style={{ marginBottom: 12 }}>
                     <label className="body-font" style={{ fontSize: 11, fontWeight: 700, display: 'block', marginBottom: 6 }}>
-                      Your phrase ✨ <span style={{ fontWeight: 400, color: '#7a3399' }}>(line breaks = new lines)</span>
+                      Your phrase ✨ <span style={{ fontWeight: 400, color: '#831843' }}>(line breaks = new lines)</span>
                     </label>
                     <textarea
                       className="text-input"
@@ -1520,7 +1517,7 @@ export default function NeedlepointDesigner() {
                       onChange={(e) => setPhraseText(e.target.value)}
                       rows={4}
                       placeholder="I LOVE&#10;THAT FOR&#10;YOU"
-                      style={{ resize: 'vertical', minHeight: 80, fontFamily: '"Fredoka", sans-serif', fontWeight: 600 }}
+                      style={{ resize: 'vertical', minHeight: 80, fontFamily: '"Nunito", sans-serif', fontWeight: 600 }}
                     />
                   </div>
 
@@ -1530,7 +1527,7 @@ export default function NeedlepointDesigner() {
                       className="text-input"
                       value={phraseFont}
                       onChange={(e) => setPhraseFont(e.target.value)}
-                      style={{ fontFamily: '"Fredoka", sans-serif', fontWeight: 600 }}
+                      style={{ fontFamily: '"Nunito", sans-serif', fontWeight: 600 }}
                     >
                       {Object.entries(PHRASE_FONTS).map(([k, f]) => (
                         <option key={k} value={k}>{f.name} — {f.note}</option>
@@ -1544,7 +1541,7 @@ export default function NeedlepointDesigner() {
                       className="text-input"
                       value={phraseBorderStyle}
                       onChange={(e) => setPhraseBorderStyle(e.target.value)}
-                      style={{ fontFamily: '"Fredoka", sans-serif', fontWeight: 600 }}
+                      style={{ fontFamily: '"Nunito", sans-serif', fontWeight: 600 }}
                     >
                       {Object.entries(PHRASE_BORDERS).map(([k, b]) => (
                         <option key={k} value={k}>{b.emoji} {b.name}</option>
@@ -1555,21 +1552,21 @@ export default function NeedlepointDesigner() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
                     <div>
                       <label className="body-font" style={{ fontSize: 10, fontWeight: 700, display: 'block', marginBottom: 4 }}>Text</label>
-                      <input type="color" value={phraseTextColor} onChange={(e) => setPhraseTextColor(e.target.value)} style={{ width: '100%', height: 36, border: '2px solid #1a0033', borderRadius: 8, cursor: 'pointer', padding: 0, background: '#fff' }} />
+                      <input type="color" value={phraseTextColor} onChange={(e) => setPhraseTextColor(e.target.value)} style={{ width: '100%', height: 36, border: '2px solid #5B1735', borderRadius: 8, cursor: 'pointer', padding: 0, background: '#fff' }} />
                     </div>
                     <div>
                       <label className="body-font" style={{ fontSize: 10, fontWeight: 700, display: 'block', marginBottom: 4 }}>Bg</label>
-                      <input type="color" value={phraseBgColor} onChange={(e) => setPhraseBgColor(e.target.value)} style={{ width: '100%', height: 36, border: '2px solid #1a0033', borderRadius: 8, cursor: 'pointer', padding: 0, background: '#fff' }} />
+                      <input type="color" value={phraseBgColor} onChange={(e) => setPhraseBgColor(e.target.value)} style={{ width: '100%', height: 36, border: '2px solid #5B1735', borderRadius: 8, cursor: 'pointer', padding: 0, background: '#fff' }} />
                     </div>
                     <div>
                       <label className="body-font" style={{ fontSize: 10, fontWeight: 700, display: 'block', marginBottom: 4 }}>Border</label>
-                      <input type="color" value={phraseBorderColor} onChange={(e) => setPhraseBorderColor(e.target.value)} style={{ width: '100%', height: 36, border: '2px solid #1a0033', borderRadius: 8, cursor: 'pointer', padding: 0, background: '#fff' }} />
+                      <input type="color" value={phraseBorderColor} onChange={(e) => setPhraseBorderColor(e.target.value)} style={{ width: '100%', height: 36, border: '2px solid #5B1735', borderRadius: 8, cursor: 'pointer', padding: 0, background: '#fff' }} />
                     </div>
                     <div>
                       <label className="body-font" style={{ fontSize: 10, fontWeight: 700, display: 'block', marginBottom: 4 }}>
-                        Accent <span style={{ fontWeight: 400, color: '#7a3399' }}>(flowers/scallops)</span>
+                        Accent <span style={{ fontWeight: 400, color: '#831843' }}>(flowers/scallops)</span>
                       </label>
-                      <input type="color" value={phraseBorderAccentColor} onChange={(e) => setPhraseBorderAccentColor(e.target.value)} style={{ width: '100%', height: 36, border: '2px solid #1a0033', borderRadius: 8, cursor: 'pointer', padding: 0, background: '#fff' }} />
+                      <input type="color" value={phraseBorderAccentColor} onChange={(e) => setPhraseBorderAccentColor(e.target.value)} style={{ width: '100%', height: 36, border: '2px solid #5B1735', borderRadius: 8, cursor: 'pointer', padding: 0, background: '#fff' }} />
                     </div>
                   </div>
 
@@ -1591,7 +1588,7 @@ export default function NeedlepointDesigner() {
                     🎲 Surprise Me ✨
                   </button>
 
-                  <div style={{ fontSize: 10, color: '#7a3399', fontWeight: 600, marginBottom: 6, textAlign: 'center' }}>or pick a curated combo</div>
+                  <div style={{ fontSize: 10, color: '#831843', fontWeight: 600, marginBottom: 6, textAlign: 'center' }}>or pick a curated combo</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                     {PHRASE_PRESETS.map((p, i) => (
                       <button
@@ -1599,19 +1596,19 @@ export default function NeedlepointDesigner() {
                         onClick={() => { setPhraseTextColor(p.text); setPhraseBgColor(p.bg); setPhraseBorderColor(p.border); setPhraseBorderAccentColor(p.accent || p.text); }}
                         style={{
                           padding: '6px 8px',
-                          border: '2px solid #1a0033',
+                          border: '2px solid #5B1735',
                           borderRadius: 10,
                           background: p.bg,
                           color: p.text,
                           fontSize: 10,
                           fontWeight: 700,
                           cursor: 'pointer',
-                          fontFamily: '"Fredoka", sans-serif',
+                          fontFamily: '"Nunito", sans-serif',
                           textAlign: 'left',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 6,
-                          boxShadow: '2px 2px 0 #1a0033',
+                          boxShadow: '2px 2px 0 #5B1735',
                         }}
                       >
                         <span style={{ width: 14, height: 14, borderRadius: 4, background: p.border, flexShrink: 0, border: '1px solid rgba(0,0,0,0.2)' }} />
@@ -1625,7 +1622,7 @@ export default function NeedlepointDesigner() {
 
             <div className="card">
               <div className="section-label"><Star size={14} fill="#ffd93d" /> 02 · Color Reference</div>
-              <div style={{ fontSize: 11, color: '#7a3399', marginBottom: 10, fontWeight: 500 }}>✨ Pull palette from another image</div>
+              <div style={{ fontSize: 11, color: '#831843', marginBottom: 10, fontWeight: 500 }}>✨ Pull palette from another image</div>
               <input ref={refFileInputRef} type="file" accept="image/*" onChange={handleRefUpload} style={{ display: 'none' }} />
               {!refImage ? (
                 <button className="btn" onClick={() => refFileInputRef.current?.click()} style={{ width: '100%', justifyContent: 'center' }}>
@@ -1633,10 +1630,10 @@ export default function NeedlepointDesigner() {
                 </button>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <img src={refImage.src} alt="ref" style={{ width: 52, height: 52, objectFit: 'cover', border: '2.5px solid #1a0033', borderRadius: 12, boxShadow: '2px 2px 0 #1a0033' }} />
+                  <img src={refImage.src} alt="ref" style={{ width: 52, height: 52, objectFit: 'cover', border: '2.5px solid #5B1735', borderRadius: 12, boxShadow: '2px 2px 0 #5B1735' }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 11, color: '#1a0033', fontWeight: 600, wordBreak: 'break-all' }}>{refImageName}</div>
-                    <div className="mono-font" style={{ fontSize: 10, color: '#ff1493', marginTop: 2, fontWeight: 700 }}>✨ active</div>
+                    <div style={{ fontSize: 11, color: '#5B1735', fontWeight: 600, wordBreak: 'break-all' }}>{refImageName}</div>
+                    <div className="mono-font" style={{ fontSize: 10, color: '#EC4899', marginTop: 2, fontWeight: 700 }}>✨ active</div>
                   </div>
                   <button onClick={clearRef} className="btn-icon">
                     <X size={14} />
@@ -1650,24 +1647,24 @@ export default function NeedlepointDesigner() {
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Width</label>
-                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#ff1493' }}>{widthIn.toFixed(2)}" · {widthStitches} st</span>
+                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{widthIn.toFixed(2)}" · {widthStitches} st</span>
                 </div>
                 <input type="range" min="0.5" max="16" step="0.1" value={widthIn} onChange={(e) => setWidthIn(+e.target.value)} />
               </div>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Height</label>
-                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#ff1493' }}>{heightIn.toFixed(2)}" · {heightStitches} st</span>
+                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{heightIn.toFixed(2)}" · {heightStitches} st</span>
                 </div>
                 <input type="range" min="0.5" max="16" step="0.1" value={heightIn} onChange={(e) => setHeightIn(+e.target.value)} />
               </div>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Mesh</label>
-                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#ff1493' }}>{mesh}</span>
+                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{mesh}</span>
                 </div>
                 <input type="range" min="8" max="22" value={mesh} onChange={(e) => setMesh(+e.target.value)} />
-                <div className="mono-font" style={{ fontSize: 10, color: '#7a3399', marginTop: 4, fontWeight: 600 }}>10 = chunky 🍡 · 13 = std · 18 = fine ✨</div>
+                <div className="mono-font" style={{ fontSize: 10, color: '#831843', marginTop: 4, fontWeight: 600 }}>10 = chunky 🍡 · 13 = std · 18 = fine ✨</div>
               </div>
               <div>
                 <label className="body-font" style={{ fontSize: 12, fontWeight: 700, display: 'block', marginBottom: 8 }}>Shape</label>
@@ -1689,25 +1686,25 @@ export default function NeedlepointDesigner() {
             {image && (
               <div className="card">
                 <div className="section-label">📐 Image Position</div>
-                <div style={{ fontSize: 11, color: '#7a3399', marginBottom: 12, fontWeight: 500, fontStyle: 'italic' }}>
+                <div style={{ fontSize: 11, color: '#831843', marginBottom: 12, fontWeight: 500, fontStyle: 'italic' }}>
                   Shrink the design within the canvas so it doesn't fill the whole space
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                     <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Size</label>
-                    <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#ff1493' }}>{designScale}%</span>
+                    <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{designScale}%</span>
                   </div>
                   <input type="range" min="20" max="100" step="5" value={designScale} onChange={(e) => setDesignScale(+e.target.value)} />
                 </div>
                 <div style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                     <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Horizontal Position</label>
-                    <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#ff1493' }}>
+                    <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>
                       {designOffsetX === 0 ? 'center' : designOffsetX > 0 ? `+${designOffsetX}` : designOffsetX}
                     </span>
                   </div>
                   <input type="range" min="-50" max="50" step="5" value={designOffsetX} onChange={(e) => setDesignOffsetX(+e.target.value)} />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginTop: 4, color: '#7a3399', fontWeight: 600 }} className="mono-font">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginTop: 4, color: '#831843', fontWeight: 600 }} className="mono-font">
                     <span>← left</span><span>center</span><span>right →</span>
                   </div>
                 </div>
@@ -1719,39 +1716,39 @@ export default function NeedlepointDesigner() {
 
             <div className="card">
               <div className="section-label">🌈 04 · Pattern Magic</div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 12, marginBottom: 14, padding: 10, background: useDMC ? 'linear-gradient(135deg, #ffe6f5, #f5e6ff)' : 'rgba(255,255,255,0.5)', borderRadius: 12, border: '2px solid #1a0033' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 12, marginBottom: 14, padding: 10, background: useDMC ? 'linear-gradient(135deg, #ffe6f5, #f5e6ff)' : 'rgba(255,255,255,0.5)', borderRadius: 12, border: '2px solid #5B1735' }}>
                 <input type="checkbox" className="checkbox-cute" checked={useDMC} onChange={(e) => setUseDMC(e.target.checked)} />
                 <span className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>🧵 Snap to DMC threads</span>
               </label>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Colors</label>
-                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#ff1493' }}>{numColors}</span>
+                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{numColors}</span>
                 </div>
                 <input type="range" min="2" max="20" value={numColors} onChange={(e) => setNumColors(+e.target.value)} />
               </div>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Edges</label>
-                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#ff1493' }}>{['Soft','Normal','Sharp'][edgeSharpness]}</span>
+                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{['Soft','Normal','Sharp'][edgeSharpness]}</span>
                 </div>
                 <input type="range" min="0" max="2" value={edgeSharpness} onChange={(e) => setEdgeSharpness(+e.target.value)} />
               </div>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <label className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Smoothing</label>
-                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#ff1493' }}>{['off','light','normal','heavy'][smoothing]}</span>
+                  <span className="mono-font" style={{ fontSize: 13, fontWeight: 700, color: '#EC4899' }}>{['off','light','normal','heavy'][smoothing]}</span>
                 </div>
                 <input type="range" min="0" max="3" value={smoothing} onChange={(e) => setSmoothing(+e.target.value)} />
               </div>
-              <div style={{ marginTop: 14, paddingTop: 14, borderTop: '2px dashed #c084f5' }}>
+              <div style={{ marginTop: 14, paddingTop: 14, borderTop: '2px dashed #A855F7' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 12 }}>
                   <input type="checkbox" className="checkbox-cute" checked={useBg} onChange={(e) => setUseBg(e.target.checked)} />
                   <span className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>Background fill</span>
                 </label>
                 {useBg && (
                   <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} style={{ width: 44, height: 36, border: '2.5px solid #1a0033', cursor: 'pointer', borderRadius: 10, boxShadow: '2px 2px 0 #1a0033' }} />
+                    <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} style={{ width: 44, height: 36, border: '2.5px solid #5B1735', cursor: 'pointer', borderRadius: 10, boxShadow: '2px 2px 0 #5B1735' }} />
                     <span className="mono-font" style={{ fontSize: 11, fontWeight: 700 }}>{bgColor.toUpperCase()}</span>
                   </div>
                 )}
@@ -1775,15 +1772,15 @@ export default function NeedlepointDesigner() {
             {!gridData ? (
               <div style={{
                 minHeight: 400, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', color: '#7a3399', textAlign: 'center', gap: 18,
-                border: '3px dashed #ff1493', borderRadius: 20,
+                justifyContent: 'center', color: '#831843', textAlign: 'center', gap: 18,
+                border: '3px dashed #EC4899', borderRadius: 20,
                 background: 'linear-gradient(135deg, rgba(255,230,245,0.5), rgba(245,230,255,0.5))',
                 padding: 24,
               }}>
                 <div style={{ fontSize: 56 }}>🎀</div>
                 <div className="display-font glitter-text" style={{ fontSize: 28 }}>Let's make something cute!</div>
                 <div style={{ fontSize: 13, maxWidth: 380, lineHeight: 1.6, fontWeight: 500 }}>
-                  Set to <strong style={{ color: '#ff1493' }}>{proj.name} {proj.emoji}</strong> ({proj.mesh} mesh, {proj.widthIn}" × {proj.heightIn}"). Tap a different project or upload your image ✨
+                  Set to <strong style={{ color: '#EC4899' }}>{proj.name} {proj.emoji}</strong> ({proj.mesh} mesh, {proj.widthIn}" × {proj.heightIn}"). Tap a different project or upload your image ✨
                 </div>
               </div>
             ) : (
@@ -1798,7 +1795,7 @@ export default function NeedlepointDesigner() {
                   <button className={`btn btn-sm ${viewMode === 'preview' && !editMode ? 'active' : ''}`} onClick={() => { setViewMode('preview'); setEditMode(false); }}>
                     <Eye size={11} />Preview
                   </button>
-                  <div style={{ width: 2, height: 22, background: '#c084f5', margin: '0 2px', borderRadius: 1 }} />
+                  <div style={{ width: 2, height: 22, background: '#A855F7', margin: '0 2px', borderRadius: 1 }} />
                   <button className={`btn btn-sm ${editMode ? 'active' : ''}`} onClick={() => setEditMode(!editMode)}>
                     <Edit3 size={11} />{editMode ? 'Editing ✨' : 'Edit'}
                   </button>
@@ -1814,8 +1811,8 @@ export default function NeedlepointDesigner() {
                 </div>
 
                 {/* Zoom + toggles row */}
-                <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap', alignItems: 'center', padding: '8px 12px', background: 'rgba(255, 255, 255, 0.6)', borderRadius: 12, border: '2px solid #c084f5' }}>
-                  <span className="body-font" style={{ fontSize: 11, fontWeight: 700, color: '#7a3399' }}>🔍 Zoom:</span>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap', alignItems: 'center', padding: '8px 12px', background: 'rgba(255, 255, 255, 0.6)', borderRadius: 12, border: '2px solid #A855F7' }}>
+                  <span className="body-font" style={{ fontSize: 11, fontWeight: 700, color: '#831843' }}>🔍 Zoom:</span>
                   <button className={`btn btn-sm ${zoomLevel === 'fit' ? 'active' : ''}`} onClick={() => setZoomLevel('fit')} style={{ padding: '4px 8px', fontSize: 10 }}>Fit</button>
                   <button className={`btn btn-sm ${zoomLevel === 1 ? 'active' : ''}`} onClick={() => setZoomLevel(1)} style={{ padding: '4px 8px', fontSize: 10 }}>1×</button>
                   <button className={`btn btn-sm ${zoomLevel === 1.5 ? 'active' : ''}`} onClick={() => setZoomLevel(1.5)} style={{ padding: '4px 8px', fontSize: 10 }}>1.5×</button>
@@ -1842,14 +1839,14 @@ export default function NeedlepointDesigner() {
                   <div style={{ marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <label className="body-font" style={{ fontSize: 11, fontWeight: 700 }}>Trace opacity</label>
-                      <span className="mono-font" style={{ fontSize: 11, color: '#ff1493', fontWeight: 700 }}>{Math.round(traceOpacity * 100)}%</span>
+                      <span className="mono-font" style={{ fontSize: 11, color: '#EC4899', fontWeight: 700 }}>{Math.round(traceOpacity * 100)}%</span>
                     </div>
                     <input type="range" min="0.1" max="0.8" step="0.05" value={traceOpacity} onChange={(e) => setTraceOpacity(+e.target.value)} />
                   </div>
                 )}
 
                 {editMode && (
-                  <div style={{ padding: 10, background: 'linear-gradient(135deg, #ffe6f5, #f5e6ff)', border: '2px solid #ff1493', marginBottom: 12, fontSize: 11, color: '#7a3399', lineHeight: 1.5, borderRadius: 12, fontWeight: 600 }}>
+                  <div style={{ padding: 10, background: 'linear-gradient(135deg, #ffe6f5, #f5e6ff)', border: '2px solid #EC4899', marginBottom: 12, fontSize: 11, color: '#831843', lineHeight: 1.5, borderRadius: 12, fontWeight: 600 }}>
                     {showTrace ? '🎀 Tracing mode: original image shown behind grid' :
                      drawAction === 'paint' ? '💖 Tap or drag to paint! Pick a color from the palette below' :
                      '🧼 Tap or drag to erase to background'}
@@ -1866,7 +1863,7 @@ export default function NeedlepointDesigner() {
                       display: 'inline-block', position: 'relative',
                       padding: (showCanvas && proj.usesStretcherBars) ? `${previewPaddingH}px ${previewPaddingW}px` : '0',
                       background: (showCanvas && proj.usesStretcherBars) ? 'repeating-linear-gradient(0deg, transparent, transparent ' + (cellSize - 0.5) + 'px, rgba(192, 132, 245, 0.15) ' + (cellSize - 0.5) + 'px, rgba(192, 132, 245, 0.15) ' + cellSize + 'px), repeating-linear-gradient(90deg, transparent, transparent ' + (cellSize - 0.5) + 'px, rgba(192, 132, 245, 0.15) ' + (cellSize - 0.5) + 'px, rgba(192, 132, 245, 0.15) ' + cellSize + 'px)' : 'transparent',
-                      border: (showCanvas && proj.usesStretcherBars) ? '3px dashed #c084f5' : 'none',
+                      border: (showCanvas && proj.usesStretcherBars) ? '3px dashed #A855F7' : 'none',
                       borderRadius: (showCanvas && proj.usesStretcherBars) ? 8 : 0,
                     }}>
                       {(showCanvas && proj.usesStretcherBars) && (
@@ -1879,7 +1876,7 @@ export default function NeedlepointDesigner() {
                           borderRadius: 999,
                           fontSize: 10,
                           fontWeight: 700,
-                          fontFamily: 'Fredoka',
+                          fontFamily: 'Nunito',
                           letterSpacing: '0.05em',
                           zIndex: 3,
                           whiteSpace: 'nowrap',
@@ -1915,8 +1912,8 @@ export default function NeedlepointDesigner() {
                             else if (!isEmpty) color = palette[v]?.hex || '#fff';
                             const showNumber = viewMode === 'numbered' && !editMode && !isEmpty && !isMasked && cellSize >= 14;
                             const isPreview = viewMode === 'preview' && !editMode;
-                            const borderRight = showGuides && (x + 1) % 10 === 0 && x !== widthStitches - 1 ? '1.5px solid #ff1493' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
-                            const borderBottom = showGuides && (y + 1) % 10 === 0 && y !== heightStitches - 1 ? '1.5px solid #ff1493' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
+                            const borderRight = showGuides && (x + 1) % 10 === 0 && x !== widthStitches - 1 ? '1.5px solid #EC4899' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
+                            const borderBottom = showGuides && (y + 1) % 10 === 0 && y !== heightStitches - 1 ? '1.5px solid #EC4899' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
                             let textColor = '#000';
                             if (!isEmpty && !isMasked) {
                               const [r,g,b] = palette[v].rgb;
@@ -1936,7 +1933,7 @@ export default function NeedlepointDesigner() {
                                   width: cellSize, height: cellSize,
                                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                                   fontSize: Math.min(10, cellSize * 0.5), color: textColor,
-                                  fontFamily: 'Fredoka, sans-serif', fontWeight: 700,
+                                  fontFamily: 'Nunito, sans-serif', fontWeight: 700,
                                   userSelect: 'none', boxSizing: 'border-box',
                                   opacity: isMasked ? 0.5 : 1,
                                 }}
@@ -1951,7 +1948,7 @@ export default function NeedlepointDesigner() {
                             viewBox={`0 0 ${widthStitches * cellSize} ${heightStitches * cellSize}`} preserveAspectRatio="none">
                             <ellipse cx={(widthStitches * cellSize) / 2} cy={(heightStitches * cellSize) / 2}
                               rx={(widthStitches * cellSize) / 2 - 1} ry={(heightStitches * cellSize) / 2 - 1}
-                              fill="none" stroke="#ff1493" strokeWidth="2.5" strokeDasharray="6,3" />
+                              fill="none" stroke="#EC4899" strokeWidth="2.5" strokeDasharray="6,3" />
                           </svg>
                         )}
                         {editMode && showTrace && image && (
@@ -1966,10 +1963,10 @@ export default function NeedlepointDesigner() {
                 )}
 
                 <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-                  <div className="mono-font" style={{ fontSize: 11, color: '#7a3399', fontWeight: 700 }}>
+                  <div className="mono-font" style={{ fontSize: 11, color: '#831843', fontWeight: 700 }}>
                     💎 {widthStitches} × {heightStitches} st · {widthIn.toFixed(2)}" × {heightIn.toFixed(2)}"
                   </div>
-                  <div className="mono-font" style={{ fontSize: 11, color: '#ff1493', minHeight: 16, fontWeight: 600 }}>
+                  <div className="mono-font" style={{ fontSize: 11, color: '#EC4899', minHeight: 16, fontWeight: 600 }}>
                     {hoveredCell && (
                       <>({hoveredCell.x}, {hoveredCell.y}) · {hoveredCell.masked ? 'outside shape' : hoveredCell.color ? (hoveredCell.dmc ? `DMC ${hoveredCell.dmc} — ${hoveredCell.name}` : `${hoveredCell.idx + 1} — ${hoveredCell.color.toUpperCase()}`) : 'empty'}</>
                     )}
@@ -1977,7 +1974,7 @@ export default function NeedlepointDesigner() {
                 </div>
 
                 {palette.length > 0 && (
-                  <div style={{ marginTop: 18, paddingTop: 16, borderTop: '2px dashed #c084f5' }}>
+                  <div style={{ marginTop: 18, paddingTop: 16, borderTop: '2px dashed #A855F7' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
                       <div className="display-font glitter-text" style={{ fontSize: 20 }}>
                         ✨ Palette · {palette.length} colors
@@ -1995,26 +1992,26 @@ export default function NeedlepointDesigner() {
                             else { setEditingColorIdx(i); setDmcSearch(''); }
                           }}
                           style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 10,
-                            background: '#fff', border: '2.5px solid #1a0033', borderRadius: 14,
-                            boxShadow: '3px 3px 0 #1a0033' }}>
+                            background: '#fff', border: '2.5px solid #5B1735', borderRadius: 14,
+                            boxShadow: '3px 3px 0 #5B1735' }}>
                           <div style={{
-                            width: 42, height: 42, background: p.hex, border: '2px solid #1a0033',
+                            width: 42, height: 42, background: p.hex, border: '2px solid #5B1735',
                             borderRadius: 10, flexShrink: 0,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: (0.299*p.rgb[0] + 0.587*p.rgb[1] + 0.114*p.rgb[2]) < 128 ? '#fff' : '#1a0033',
+                            color: (0.299*p.rgb[0] + 0.587*p.rgb[1] + 0.114*p.rgb[2]) < 128 ? '#fff' : '#5B1735',
                             fontSize: 14, fontWeight: 800,
                           }}>{SYMBOLS[i % SYMBOLS.length]}</div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             {p.dmc ? (
                               <>
                                 <div className="body-font" style={{ fontSize: 12, fontWeight: 700 }}>DMC {p.dmc}</div>
-                                <div style={{ fontSize: 10, color: '#7a3399', marginTop: 1, fontWeight: 500 }}>{p.name}</div>
-                                <div className="mono-font" style={{ fontSize: 10, color: '#ff1493', marginTop: 2, fontWeight: 700 }}>{p.count} st</div>
+                                <div style={{ fontSize: 10, color: '#831843', marginTop: 1, fontWeight: 500 }}>{p.name}</div>
+                                <div className="mono-font" style={{ fontSize: 10, color: '#EC4899', marginTop: 2, fontWeight: 700 }}>{p.count} st</div>
                               </>
                             ) : (
                               <>
                                 <div className="mono-font" style={{ fontSize: 12, fontWeight: 700 }}>{p.hex.toUpperCase()}</div>
-                                <div className="mono-font" style={{ fontSize: 10, color: '#ff1493', fontWeight: 700 }}>{p.count} st</div>
+                                <div className="mono-font" style={{ fontSize: 10, color: '#EC4899', fontWeight: 700 }}>{p.count} st</div>
                               </>
                             )}
                           </div>
@@ -2033,7 +2030,7 @@ export default function NeedlepointDesigner() {
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: 24, fontSize: 11, color: '#1a0033', fontWeight: 600, fontFamily: 'Fredoka' }}>
+        <div style={{ textAlign: 'center', marginTop: 24, fontSize: 11, color: '#5B1735', fontWeight: 600, fontFamily: 'Nunito' }}>
           💖 {mesh} mesh · {mesh * mesh} stitches per sq inch · made with sparkles 💖
         </div>
       </div>

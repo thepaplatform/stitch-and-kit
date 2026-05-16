@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000">
+  <defs>
+    
+    <linearGradient id="stTx" x1="0%" x2="100%" y2="0"><stop offset="0%" stop-color="#EC4899"></stop><stop offset="50%" stop-color="#C56BE0"></stop><stop offset="100%" stop-color="#A855F7"></stop></linearGradient>
+  </defs>
+  <text x="700" y="490" text-anchor="middle" font-family="Pacifico, cursive" font-size="340" fill="url(#stTx)" style="filter:drop-shadow(0 8px 14px rgba(236,72,153,.18))">Stitch</text>
+  <text x="700" y="660" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="58" letter-spacing="32" fill="#831843">&amp;</text>
+  <text x="700" y="850" text-anchor="middle" font-family="Pacifico, cursive" font-size="340" fill="url(#stTx)" style="filter:drop-shadow(0 8px 14px rgba(236,72,153,.18))">Kit</text>
+</svg>

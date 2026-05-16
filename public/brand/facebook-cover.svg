@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 312" width="820" height="312">
+  <defs>
+    
+    <linearGradient id="fbBg" x1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EC4899"></stop><stop offset="100%" stop-color="#A855F7"></stop></linearGradient>
+    <linearGradient id="fbTx" x1="0%" x2="100%" y2="0"><stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="100%" stop-color="#FCD34D"></stop></linearGradient>
+  </defs>
+  <rect width="820" height="312" fill="url(#fbBg)"></rect>
+  <g fill="#FCD34D" opacity="0.85">
+    <circle cx="60" cy="60" r="4"></circle><circle cx="760" cy="80" r="5"></circle><circle cx="100" cy="250" r="4"></circle><circle cx="740" cy="240" r="3"></circle>
+  </g>
+  <text x="410" y="180" text-anchor="middle" font-family="Pacifico, cursive" font-size="120" fill="url(#fbTx)" style="filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))">Stitch &amp; Kit</text>
+  <text x="410" y="230" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="16" letter-spacing="4" fill="#FFFFFF">✨  PRINTABLE NEEDLEPOINT PATTERN MAKER  ✨</text>
+</svg>

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bowBg" x1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF1A8C"></stop>
+      <stop offset="100%" stop-color="#A855F7"></stop>
+    </linearGradient>
+    <linearGradient id="bowSheen" x1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"></stop>
+      <stop offset="100%" stop-color="#FCE7F3"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="230" fill="url(#bowBg)"></rect>
+  
+  <path d="M 488 432&#xA;           C 380 332, 200 326, 142 432&#xA;           C 86 540, 240 638, 488 596&#xA;           Z" fill="url(#bowSheen)" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"></path>
+  
+  <path d="M 536 432&#xA;           C 644 332, 824 326, 882 432&#xA;           C 938 540, 784 638, 536 596&#xA;           Z" fill="url(#bowSheen)" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"></path>
+  
+  <path d="M 472 588&#xA;           C 432 700, 388 770, 360 880&#xA;           L 452 880&#xA;           C 470 800, 494 720, 514 596&#xA;           Z" fill="url(#bowSheen)" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"></path>
+  
+  <path d="M 552 588&#xA;           C 592 700, 636 770, 664 880&#xA;           L 572 880&#xA;           C 554 800, 530 720, 510 596&#xA;           Z" fill="url(#bowSheen)" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"></path>
+  
+  <rect x="456" y="412" width="112" height="200" rx="40" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="6"></rect>
+  
+  <path d="M 478 432 Q 512 462 546 432 M 478 592 Q 512 562 546 592" fill="none" stroke="#EC4899" stroke-width="8" stroke-linecap="round" opacity="0.35"></path>
+  
+  <g fill="#FCD34D">
+    <circle cx="180" cy="220" r="8"></circle>
+    <circle cx="840" cy="240" r="6"></circle>
+    <circle cx="200" cy="820" r="5"></circle>
+  </g>
+</svg>

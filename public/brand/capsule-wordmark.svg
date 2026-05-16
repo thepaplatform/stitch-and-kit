@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 900" width="2000" height="900">
+  <defs>
+    
+    <linearGradient id="cgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EC4899"></stop>
+      <stop offset="50%" stop-color="#C56BE0"></stop>
+      <stop offset="100%" stop-color="#A855F7"></stop>
+    </linearGradient>
+    <linearGradient id="bgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EC4899"></stop>
+      <stop offset="100%" stop-color="#A855F7"></stop>
+    </linearGradient>
+  </defs>
+  
+  <rect x="40" y="40" width="1920" height="820" rx="410" fill="url(#bgrad)"></rect>
+  <rect x="64" y="64" width="1872" height="772" rx="386" fill="#FFFFFF"></rect>
+  
+  <text x="1000" y="245" text-anchor="middle" class="eb" font-size="56" fill="#EC4899">✨  PRINTABLE NEEDLEPOINT PATTERN MAKER  ✨</text>
+  
+  <text x="1000" y="655" text-anchor="middle" class="wm" font-size="290" fill="url(#cgrad)">Stitch &amp; Kit</text>
+</svg>

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="hsBg" x1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF1A8C"></stop>
+      <stop offset="50%" stop-color="#EC4899"></stop>
+      <stop offset="100%" stop-color="#A855F7"></stop>
+    </linearGradient>
+    <pattern id="xStitch" patternUnits="userSpaceOnUse" width="74" height="74">
+      <g stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" opacity="0.95">
+        <line x1="18" y1="18" x2="56" y2="56"></line>
+        <line x1="56" y1="18" x2="18" y2="56"></line>
+      </g>
+    </pattern>
+    <clipPath id="heartClip">
+      <path d="M512 856 C 250 686, 88 470, 188 296 C 254 180, 410 178, 488 282 C 502 300, 512 316, 512 316 C 512 316, 522 300, 536 282 C 614 178, 770 180, 836 296 C 936 470, 774 686, 512 856 Z"></path>
+    </clipPath>
+  </defs>
+  <rect width="1024" height="1024" rx="230" fill="url(#hsBg)"></rect>
+  
+  <path d="M512 856 C 250 686, 88 470, 188 296 C 254 180, 410 178, 488 282 C 502 300, 512 316, 512 316 C 512 316, 522 300, 536 282 C 614 178, 770 180, 836 296 C 936 470, 774 686, 512 856 Z" fill="#FFFFFF" opacity="0.08"></path>
+  
+  <g clip-path="url(#heartClip)">
+    <rect width="1024" height="1024" fill="url(#xStitch)"></rect>
+  </g>
+  
+  <path d="M512 856 C 250 686, 88 470, 188 296 C 254 180, 410 178, 488 282 C 502 300, 512 316, 512 316 C 512 316, 522 300, 536 282 C 614 178, 770 180, 836 296 C 936 470, 774 686, 512 856 Z" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linejoin="round" stroke-linecap="round"></path>
+</svg>

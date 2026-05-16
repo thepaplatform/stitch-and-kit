@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1584 396" width="1584" height="396">
+  <defs>
+    
+    <linearGradient id="lnBg" x1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EC4899"></stop><stop offset="100%" stop-color="#A855F7"></stop></linearGradient>
+    <linearGradient id="lnTx" x1="0%" x2="100%" y2="0"><stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="100%" stop-color="#FCD34D"></stop></linearGradient>
+  </defs>
+  <rect width="1584" height="396" fill="url(#lnBg)"></rect>
+  <g fill="#FCD34D" opacity="0.85">
+    <circle cx="120" cy="80" r="5"></circle><circle cx="1480" cy="100" r="6"></circle><circle cx="200" cy="320" r="4"></circle>
+    <circle cx="1420" cy="300" r="5"></circle><circle cx="80" cy="220" r="3"></circle><circle cx="1520" cy="220" r="4"></circle>
+  </g>
+  <g fill="#FFFFFF" opacity="0.5">
+    <circle cx="240" cy="150" r="3"></circle><circle cx="1340" cy="250" r="3"></circle>
+  </g>
+  <rect x="540" y="60" width="504" height="56" rx="28" fill="#FFFFFF"></rect>
+  <text x="792" y="98" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="18" letter-spacing="3" fill="#EC4899">✨  PRINTABLE NEEDLEPOINT PATTERN MAKER  ✨</text>
+  <text x="792" y="250" text-anchor="middle" font-family="Pacifico, cursive" font-size="140" fill="url(#lnTx)" style="filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))">Stitch &amp; Kit</text>
+  <text x="792" y="320" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="700" font-size="26" fill="#FFFFFF">the cutest needlepoint patterns on the internet 💖</text>
+  <text x="792" y="370" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="14" letter-spacing="6" fill="#FFFFFF" opacity="0.85">STITCHANDKIT.COM   ·   @STITCHANDKIT</text>
+</svg>

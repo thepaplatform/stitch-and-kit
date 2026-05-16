@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1170 2532" width="1170" height="2532">
+  <defs>
+    
+    <linearGradient id="wpBg" x1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FF1A8C"></stop><stop offset="55%" stop-color="#C56BE0"></stop><stop offset="100%" stop-color="#A855F7"></stop></linearGradient>
+    <linearGradient id="wpTx" x1="0%" x2="100%" y2="0"><stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="60%" stop-color="#FCE7F3"></stop><stop offset="100%" stop-color="#FCD34D"></stop></linearGradient>
+    <pattern id="wpHearts" x="0" y="0" width="180" height="180" patternUnits="userSpaceOnUse">
+      <path d="M90 60 C 70 30 40 35 40 65 C 40 95 90 130 90 130 C 90 130 140 95 140 65 C 140 35 110 30 90 60 Z" fill="#FFFFFF" opacity="0.06"></path>
+    </pattern>
+  </defs>
+  <rect width="1170" height="2532" fill="url(#wpBg)"></rect>
+  <rect width="1170" height="2532" fill="url(#wpHearts)"></rect>
+  <g fill="#FCD34D" opacity="0.6">
+    <circle cx="120" cy="320" r="6"></circle><circle cx="1050" cy="280" r="8"></circle><circle cx="200" cy="2200" r="7"></circle><circle cx="1000" cy="2300" r="6"></circle>
+    <circle cx="80" cy="1200" r="5"></circle><circle cx="1080" cy="1500" r="5"></circle>
+  </g>
+  <text x="585" y="1240" text-anchor="middle" font-family="Pacifico, cursive" font-size="220" fill="url(#wpTx)" style="filter:drop-shadow(0 8px 16px rgba(0,0,0,.25))">Stitch</text>
+  <text x="585" y="1430" text-anchor="middle" font-family="Pacifico, cursive" font-size="220" fill="url(#wpTx)" style="filter:drop-shadow(0 8px 16px rgba(0,0,0,.25))">&amp; Kit</text>
+  <text x="585" y="1540" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="32" letter-spacing="8" fill="#FFFFFF" opacity="0.9">✨  MADE WITH LOVE  ✨</text>
+</svg>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500" width="1500" height="500">
+  <defs>
+    
+    <linearGradient id="txBg" x1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FF1A8C"></stop><stop offset="50%" stop-color="#EC4899"></stop><stop offset="100%" stop-color="#A855F7"></stop></linearGradient>
+    <linearGradient id="txTx" x1="0%" x2="100%" y2="0"><stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="100%" stop-color="#FCD34D"></stop></linearGradient>
+  </defs>
+  <rect width="1500" height="500" fill="url(#txBg)"></rect>
+  <g fill="#FCD34D" opacity="0.85">
+    <circle cx="120" cy="120" r="6"></circle><circle cx="1380" cy="120" r="6"></circle><circle cx="100" cy="380" r="5"></circle><circle cx="1400" cy="380" r="5"></circle>
+    <circle cx="220" cy="60" r="3"></circle><circle cx="1280" cy="60" r="3"></circle><circle cx="160" cy="440" r="4"></circle><circle cx="1340" cy="440" r="4"></circle>
+  </g>
+  <g fill="#FFFFFF" opacity="0.55">
+    <circle cx="320" cy="180" r="3"></circle><circle cx="1180" cy="320" r="3"></circle>
+  </g>
+  <text x="750" y="280" text-anchor="middle" font-family="Pacifico, cursive" font-size="200" fill="url(#txTx)" style="filter:drop-shadow(0 6px 12px rgba(0,0,0,.25))">Stitch &amp; Kit</text>
+  <text x="750" y="360" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="28" letter-spacing="6" fill="#FFFFFF">✨  NEEDLEPOINT PATTERN MAKER  ✨</text>
+  <text x="750" y="410" text-anchor="middle" font-size="46">🎀</text>
+</svg>
