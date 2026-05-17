@@ -66,7 +66,6 @@ export default function NeedlepointDesigner() {
   const fileInputRef = useRef(null);
   const refFileInputRef = useRef(null);
   const gridScrollRef = useRef(null);
-  const stitchPreviewRef = useRef(null);
   const isDrawingRef = useRef(false);
 
   const widthStitches = Math.max(4, Math.round(widthIn * mesh));
@@ -581,48 +580,6 @@ export default function NeedlepointDesigner() {
       window.removeEventListener('orientationchange', updateFromRef);
     };
   }, [image, gridData]);
-
-  // Stitched preview: paint each cell as a small X on a canvas so users can
-  // see what the finished piece will actually look like. One canvas (not 14k
-  // DOM cells), supersampled 2× for crisp edges on retina.
-  useEffect(() => {
-    if (viewMode !== 'preview' || editMode) return;
-    if (!gridData || !palette || palette.length === 0) return;
-    const cv = stitchPreviewRef.current;
-    if (!cv) return;
-    const h = gridData.length;
-    const w = gridData[0]?.length || 0;
-    if (w === 0 || h === 0) return;
-    const DPI = 2;
-    cv.width = w * cellSize * DPI;
-    cv.height = h * cellSize * DPI;
-    cv.style.width = (w * cellSize) + 'px';
-    cv.style.height = (h * cellSize) + 'px';
-    const ctx = cv.getContext('2d');
-    ctx.scale(DPI, DPI);
-    ctx.fillStyle = '#FAF5F2';
-    ctx.fillRect(0, 0, w * cellSize, h * cellSize);
-    ctx.lineCap = 'round';
-    ctx.lineWidth = Math.max(1, cellSize * 0.38);
-    const pad = Math.max(0.5, cellSize * 0.14);
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        const v = gridData[y][x];
-        if (v < 0) continue;
-        const c = palette[v]?.hex;
-        if (!c) continue;
-        const cx = x * cellSize;
-        const cy = y * cellSize;
-        ctx.strokeStyle = c;
-        ctx.beginPath();
-        ctx.moveTo(cx + pad, cy + pad);
-        ctx.lineTo(cx + cellSize - pad, cy + cellSize - pad);
-        ctx.moveTo(cx + cellSize - pad, cy + pad);
-        ctx.lineTo(cx + pad, cy + cellSize - pad);
-        ctx.stroke();
-      }
-    }
-  }, [viewMode, editMode, gridData, palette, cellSize]);
 
   const pickDmcForColor = (idx, dmcColor) => {
     setPalette(prev => prev.map((p, i) => i === idx ? {
@@ -2143,15 +2100,6 @@ export default function NeedlepointDesigner() {
                           touchAction: editMode ? 'none' : 'auto',
                         }}
                       >
-                        {/* Preview mode replaces the per-cell DOM grid with one
-                            canvas that draws X-stitches — what the finished
-                            piece will actually look like. */}
-                        {viewMode === 'preview' && !editMode ? (
-                          <canvas
-                            ref={stitchPreviewRef}
-                            style={{ display: 'block', borderRadius: 4 }}
-                          />
-                        ) : (
                         <div style={{
                           display: 'grid',
                           gridTemplateColumns: `repeat(${widthStitches}, ${cellSize}px)`,
@@ -2204,7 +2152,6 @@ export default function NeedlepointDesigner() {
                             );
                           })}
                         </div>
-                        )}
                         {showShape && (shape === 'circle' || shape === 'oval') && (
                           <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
                             viewBox={`0 0 ${widthStitches * cellSize} ${heightStitches * cellSize}`} preserveAspectRatio="none">
