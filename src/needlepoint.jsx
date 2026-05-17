@@ -66,6 +66,7 @@ export default function NeedlepointDesigner() {
   const fileInputRef = useRef(null);
   const refFileInputRef = useRef(null);
   const gridScrollRef = useRef(null);
+  const stitchPreviewRef = useRef(null);
   const isDrawingRef = useRef(false);
 
   const widthStitches = Math.max(4, Math.round(widthIn * mesh));
@@ -580,6 +581,49 @@ export default function NeedlepointDesigner() {
       window.removeEventListener('orientationchange', updateFromRef);
     };
   }, [image, gridData]);
+
+  // Paint X-stitches into the preview canvas. Canvas is ALWAYS in the DOM
+  // (just display:none when not in preview mode) so the ref is reliable —
+  // no mount/unmount race that crashed the earlier version on Vercel.
+  useEffect(() => {
+    if (viewMode !== 'preview' || editMode) return;
+    if (!gridData || !palette || palette.length === 0) return;
+    const cv = stitchPreviewRef.current;
+    if (!cv) return;
+    const h = gridData.length;
+    const w = (gridData[0] && gridData[0].length) || 0;
+    if (w === 0 || h === 0 || cellSize < 1) return;
+    const DPI = 2;
+    cv.width = w * cellSize * DPI;
+    cv.height = h * cellSize * DPI;
+    cv.style.width = (w * cellSize) + 'px';
+    cv.style.height = (h * cellSize) + 'px';
+    const ctx = cv.getContext('2d');
+    if (!ctx) return;
+    ctx.setTransform(DPI, 0, 0, DPI, 0, 0);
+    ctx.fillStyle = '#FAF5F2';
+    ctx.fillRect(0, 0, w * cellSize, h * cellSize);
+    ctx.lineCap = 'round';
+    ctx.lineWidth = Math.max(1, cellSize * 0.38);
+    const pad = Math.max(0.5, cellSize * 0.14);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const v = gridData[y][x];
+        if (v < 0) continue;
+        const entry = palette[v];
+        if (!entry || !entry.hex) continue;
+        const cx = x * cellSize;
+        const cy = y * cellSize;
+        ctx.strokeStyle = entry.hex;
+        ctx.beginPath();
+        ctx.moveTo(cx + pad, cy + pad);
+        ctx.lineTo(cx + cellSize - pad, cy + cellSize - pad);
+        ctx.moveTo(cx + cellSize - pad, cy + pad);
+        ctx.lineTo(cx + pad, cy + cellSize - pad);
+        ctx.stroke();
+      }
+    }
+  }, [viewMode, editMode, gridData, palette, cellSize]);
 
   const pickDmcForColor = (idx, dmcColor) => {
     setPalette(prev => prev.map((p, i) => i === idx ? {
@@ -2152,6 +2196,19 @@ export default function NeedlepointDesigner() {
                             );
                           })}
                         </div>
+                        {/* Stitched X-preview canvas. Always mounted in the DOM
+                            so the ref is reliable; just display:none when not
+                            in preview mode. Sits on top of the grid as an
+                            overlay; pointerEvents:none lets cell hover still
+                            work underneath if we ever want it. */}
+                        <canvas
+                          ref={stitchPreviewRef}
+                          style={{
+                            position: 'absolute', top: 0, left: 0,
+                            pointerEvents: 'none', borderRadius: 4,
+                            display: viewMode === 'preview' && !editMode ? 'block' : 'none',
+                          }}
+                        />
                         {showShape && (shape === 'circle' || shape === 'oval') && (
                           <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
                             viewBox={`0 0 ${widthStitches * cellSize} ${heightStitches * cellSize}`} preserveAspectRatio="none">
