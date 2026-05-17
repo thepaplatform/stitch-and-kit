@@ -677,9 +677,13 @@ export default function NeedlepointDesigner() {
         } else {
           c.fillStyle = bw ? '#ffffff' : pal[v].hex;
           c.fillRect(offsetX + x * scale, offsetY + y * scale, scale, scale);
-          if (useSymbols && scale >= 10) {
+          // Lowered the symbol threshold (was scale >= 10, now >= 6) — at the
+          // page-fitted scale a 100+ cell pattern ended up around scale 7-8
+          // and symbols never rendered. Also bumped font size to 0.85x of the
+          // cell so symbols read clearly in print like the Etsy reference charts.
+          if (useSymbols && scale >= 6) {
             c.fillStyle = bw ? '#000' : ((0.299*pal[v].rgb[0] + 0.587*pal[v].rgb[1] + 0.114*pal[v].rgb[2]) < 128 ? '#fff' : '#000');
-            c.font = `bold ${Math.floor(scale * 0.7)}px Georgia`;
+            c.font = `bold ${Math.max(7, Math.floor(scale * 0.85))}px Georgia`;
             c.textAlign = 'center';
             c.textBaseline = 'middle';
             c.fillText(SYMBOLS[v % SYMBOLS.length], offsetX + x * scale + scale/2, offsetY + y * scale + scale/2);
@@ -698,7 +702,9 @@ export default function NeedlepointDesigner() {
       c.beginPath(); c.moveTo(offsetX, offsetY + y * scale); c.lineTo(offsetX + w * scale, offsetY + y * scale); c.stroke();
     }
     if (showGuides10) {
-      c.strokeStyle = '#000'; c.lineWidth = 2;
+      // Bolder 10-stitch guides so they're easy to count across — matches
+      // the heavy dividers used on commercial needlepoint charts.
+      c.strokeStyle = '#000'; c.lineWidth = 3;
       for (let x = 0; x <= w; x += 10) {
         c.beginPath(); c.moveTo(offsetX + x * scale, offsetY); c.lineTo(offsetX + x * scale, offsetY + h * scale); c.stroke();
       }
@@ -925,12 +931,15 @@ export default function NeedlepointDesigner() {
     const chartH2 = heightStitches * chartScale2;
     const chartX2 = (PAGE_W - chartW2) / 2;
     const chartY2 = 130;
+    // Color chart now includes the symbol inside each cell — like Furbish
+    // and NeedlepointAfterDark charts. User can identify the DMC color by
+    // either its color OR its symbol on the same page.
     drawGridToContext(c2, gridData, palette, chartScale2, chartX2, chartY2, {
-      useSymbols: false, bw: false, showGuides10: true,
+      useSymbols: true, bw: false, showGuides10: true,
       drawShapeOutline: true, sh: shape,
     });
     c2.textAlign = 'center'; c2.fillStyle = '#831843'; c2.font = 'italic 14px Georgia';
-    c2.fillText(`Bold lines every 10 stitches · Pink crosshair marks center`, PAGE_W / 2, chartY2 + chartH2 + 35);
+    c2.fillText(`Each symbol = a DMC color (see thread list) · Bold lines every 10 stitches · Pink crosshair = center`, PAGE_W / 2, chartY2 + chartH2 + 35);
     if (shopName) {
       c2.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 30);
     }
