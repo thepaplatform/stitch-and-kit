@@ -56,6 +56,11 @@ export default function NeedlepointDesigner() {
   const [dmcSearch, setDmcSearch] = useState('');
   const [showProjectPicker, setShowProjectPicker] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showRealistic, setShowRealistic] = useState(false);
+  const [realisticDescription, setRealisticDescription] = useState('');
+  const [realisticLoading, setRealisticLoading] = useState(false);
+  const [realisticError, setRealisticError] = useState(null);
+  const [realisticImageUrl, setRealisticImageUrl] = useState(null);
   const [showGlossary, setShowGlossary] = useState(false);
   const [showExportPicker, setShowExportPicker] = useState(false);
   const [zoomLevel, setZoomLevel] = useState('fit');
@@ -418,6 +423,39 @@ export default function NeedlepointDesigner() {
   // neighbor get replaced with the most common orthogonal neighbor color.
   // smoothGrid is too conservative for these (requires 5+ matching neighbors
   // elsewhere), so isolated stitches at edges and transition zones survive.
+  // Calls the /api/realistic-preview Vercel function which talks to OpenAI
+  // DALL-E and returns a photo-realistic mockup of the finished needlepoint.
+  // Sends a short description + the user's project metadata so the AI knows
+  // what kind of piece, how big, and what thread colors are involved.
+  const generateRealistic = async () => {
+    setRealisticLoading(true);
+    setRealisticError(null);
+    setRealisticImageUrl(null);
+    try {
+      const r = await fetch('/api/realistic-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: realisticDescription,
+          projectKey,
+          widthIn,
+          heightIn,
+          colors: palette.map(p => ({ name: p.name, hex: p.hex, dmc: p.dmc })),
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setRealisticError(data.error || 'Generation failed');
+        return;
+      }
+      setRealisticImageUrl(data.imageUrl);
+    } catch (err) {
+      setRealisticError(String(err));
+    } finally {
+      setRealisticLoading(false);
+    }
+  };
+
   const cleanupIsolated = () => {
     if (!gridData) return;
     pushHistory();
@@ -1420,6 +1458,67 @@ export default function NeedlepointDesigner() {
         </div>
       )}
 
+      {/* Realistic preview modal — calls OpenAI DALL-E via our Vercel function */}
+      {showRealistic && (
+        <div className="modal-overlay" onClick={() => setShowRealistic(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div className="display-font glitter-text" style={{ fontSize: 24 }}>🪡 Realistic Preview ✨</div>
+              <button onClick={() => setShowRealistic(false)} className="btn-icon"><X size={18} /></button>
+            </div>
+            <div style={{ fontSize: 13, color: '#831843', marginBottom: 12, lineHeight: 1.5 }}>
+              We'll generate a photo-realistic mockup of how your finished piece could look,
+              using AI. Give a short description so the model knows what your design shows
+              (e.g. "navy G letter in a red oval ring" or "I LOVE THAT FOR YOU in navy serif").
+            </div>
+            <label className="body-font" style={{ fontSize: 11, fontWeight: 700, display: 'block', marginBottom: 6 }}>
+              Describe your design
+            </label>
+            <textarea
+              className="text-input"
+              value={realisticDescription}
+              onChange={(e) => setRealisticDescription(e.target.value)}
+              rows={3}
+              placeholder="e.g. a navy G letter logo in a red oval ring, on white background"
+              style={{ resize: 'vertical', minHeight: 70, fontFamily: '"Nunito", sans-serif', fontWeight: 500, marginBottom: 14 }}
+            />
+            <button
+              onClick={generateRealistic}
+              disabled={realisticLoading}
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', padding: '12px', opacity: realisticLoading ? 0.5 : 1 }}
+            >
+              {realisticLoading ? '✨ Generating (~15-30s)...' : '🪡 Generate Realistic Preview'}
+            </button>
+            {realisticError && (
+              <div style={{ marginTop: 14, padding: 12, background: '#FFE0E0', border: '2px solid #cc0000', borderRadius: 12, fontSize: 12, color: '#5B1735', lineHeight: 1.5 }}>
+                <strong>Error:</strong> {realisticError}
+              </div>
+            )}
+            {realisticImageUrl && (
+              <div style={{ marginTop: 16 }}>
+                <div className="body-font" style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: '#831843' }}>
+                  Your finished-piece mockup:
+                </div>
+                <img
+                  src={realisticImageUrl}
+                  alt="Realistic preview"
+                  style={{ width: '100%', borderRadius: 14, border: '3px solid #5B1735', boxShadow: '4px 4px 0 #5B1735' }}
+                />
+                <div style={{ marginTop: 8, fontSize: 11, color: '#831843', textAlign: 'center' }}>
+                  Right-click (desktop) or long-press (mobile) to save.
+                </div>
+              </div>
+            )}
+            <div style={{ marginTop: 14, padding: 10, background: 'rgba(0,0,0,0.04)', borderRadius: 10, fontSize: 11, color: '#831843', lineHeight: 1.4 }}>
+              ⚠️ <strong>Testing feature.</strong> AI render is a "vibe match" — it shows what a needlepoint
+              piece of this style/colors could look like, not a pixel-perfect copy of your pattern. Each
+              generation costs ~$0.04 in API credits.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Project picker modal */}
       {showProjectPicker && (
         <div className="modal-overlay" onClick={() => setShowProjectPicker(false)}>
@@ -1969,6 +2068,13 @@ export default function NeedlepointDesigner() {
                 <div className="section-label">💝 05 · Export</div>
                 <button className="btn btn-primary" onClick={() => setShowExportPicker(true)} style={{ width: '100%', justifyContent: 'center', marginBottom: 10 }}>
                   <Download size={14} />Export Options ✨
+                </button>
+                <button
+                  onClick={() => { setShowRealistic(true); setRealisticImageUrl(null); setRealisticError(null); }}
+                  className="btn"
+                  style={{ width: '100%', justifyContent: 'center', marginBottom: 10, background: 'linear-gradient(135deg, #FCD34D, #EC4899)', color: 'white', borderColor: '#5B1735' }}
+                >
+                  🪡 Realistic Preview <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(0,0,0,0.2)', padding: '2px 6px', borderRadius: 6, marginLeft: 4 }}>BETA</span>
                 </button>
                 <button className="btn" onClick={reset} style={{ width: '100%', justifyContent: 'center' }}>
                   <RotateCcw size={14} />Start Over
