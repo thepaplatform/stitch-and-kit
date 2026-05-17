@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Upload, Download, RotateCcw, Eye, Grid3x3, Sparkles, Palette, Edit3, Eraser, Image as ImageIcon, X, Undo2, Wand2, Layers, Heart, Star, FileText, Maximize2 } from 'lucide-react';
 import { DMC_COLORS, SYMBOLS, hexToRgb, rgbToHex, getSaturation, closestColor, quantize } from './lib/dmc.js';
 import { PROJECTS, recommendStretcherBars } from './lib/projects.js';
@@ -329,6 +329,28 @@ export default function NeedlepointDesigner() {
   useEffect(() => {
     if (image) processImage();
   }, [image, widthStitches, heightStitches, numColors, useBg, bgColor, refImage, smoothing, edgeSharpness, shape, useDMC, designScale, designOffsetX, inputMode, phraseTextColor, phraseBgColor, phraseBorderColor, processImage]);
+
+  // Count stitches with no same-color neighbor on any of the 4 sides — these
+  // are visual loners that almost always look like noise rather than detail.
+  // Memoized so the loop only runs when gridData changes, not on every render.
+  const isolatedStitchCount = useMemo(() => {
+    if (!gridData) return 0;
+    let count = 0;
+    const h = gridData.length;
+    const w = gridData[0]?.length || 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const v = gridData[y][x];
+        if (v < 0) continue;
+        const up = y > 0 ? gridData[y-1][x] : -3;
+        const down = y < h - 1 ? gridData[y+1][x] : -3;
+        const left = x > 0 ? gridData[y][x-1] : -3;
+        const right = x < w - 1 ? gridData[y][x+1] : -3;
+        if (up !== v && down !== v && left !== v && right !== v) count++;
+      }
+    }
+    return count;
+  }, [gridData]);
 
   const recountPalette = (grid) => {
     setPalette(prev => prev.map((p, i) => ({ ...p, count: grid.flat().filter(v => v === i).length })));
@@ -2115,12 +2137,25 @@ export default function NeedlepointDesigner() {
                 )}
 
                 <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-                  <div className="mono-font" style={{ fontSize: 11, color: '#831843', fontWeight: 700 }}>
-                    💎 {widthStitches} × {heightStitches} st · {widthIn.toFixed(2)}" × {heightIn.toFixed(2)}"
+                  <div className="mono-font" style={{ fontSize: 11, color: '#831843', fontWeight: 700, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                    <span>💎 {widthStitches} × {heightStitches} st · {widthIn.toFixed(2)}" × {heightIn.toFixed(2)}"</span>
                     {palette.length > 0 && (() => {
                       const total = palette.reduce((s, p) => s + p.count, 0);
-                      return <> · <span style={{ color: '#EC4899' }}>≈ {total.toLocaleString()} stitches to sew</span></>;
+                      return <span style={{ color: '#EC4899' }}>· ≈ {total.toLocaleString()} stitches to sew</span>;
                     })()}
+                    {isolatedStitchCount > 5 && (
+                      <button
+                        onClick={cleanupNow}
+                        title="Run a smoothing pass to merge scattered loner stitches into surrounding shapes"
+                        style={{
+                          border: '1.5px solid #EC4899', background: '#FCE7F3', color: '#831843',
+                          padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+                          cursor: 'pointer', fontFamily: 'Nunito, sans-serif',
+                        }}
+                      >
+                        ✨ {isolatedStitchCount} scattered — clean up
+                      </button>
+                    )}
                   </div>
                   <div className="mono-font" style={{ fontSize: 11, color: '#EC4899', minHeight: 16, fontWeight: 600 }}>
                     {hoveredCell && (
