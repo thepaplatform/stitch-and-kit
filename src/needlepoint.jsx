@@ -423,19 +423,41 @@ export default function NeedlepointDesigner() {
   // neighbor get replaced with the most common orthogonal neighbor color.
   // smoothGrid is too conservative for these (requires 5+ matching neighbors
   // elsewhere), so isolated stitches at edges and transition zones survive.
-  // Calls the /api/realistic-preview Vercel function which talks to OpenAI
-  // DALL-E and returns a photo-realistic mockup of the finished needlepoint.
-  // Sends a short description + the user's project metadata so the AI knows
-  // what kind of piece, how big, and what thread colors are involved.
+  // Calls the /api/realistic-preview Vercel function. We capture the user's
+  // ACTUAL pattern as a small PNG so the server can run GPT-4 Vision on it
+  // and DALL-E sees what the design actually shows (not just a vague
+  // typed description from the user).
   const generateRealistic = async () => {
     setRealisticLoading(true);
     setRealisticError(null);
     setRealisticImageUrl(null);
     try {
+      // Render the pattern into a small canvas → base64. 320px max keeps the
+      // image small enough to send over the wire without choking GPT-4V.
+      let designImageBase64 = null;
+      if (gridData) {
+        const w = gridData[0]?.length || 0;
+        const h = gridData.length;
+        if (w > 0 && h > 0) {
+          const targetMax = 320;
+          const scale = Math.max(1, Math.floor(targetMax / Math.max(w, h)));
+          const cv = document.createElement('canvas');
+          cv.width = w * scale;
+          cv.height = h * scale;
+          const ctx = cv.getContext('2d');
+          drawGridToContext(ctx, gridData, palette, scale, 0, 0, {
+            useSymbols: false, bw: false, showGuides10: false,
+            drawShapeOutline: false, sh: shape,
+          });
+          designImageBase64 = cv.toDataURL('image/png').split(',')[1];
+        }
+      }
+
       const r = await fetch('/api/realistic-preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          designImageBase64,
           description: realisticDescription,
           projectKey,
           widthIn,
@@ -445,7 +467,10 @@ export default function NeedlepointDesigner() {
       });
       const data = await r.json();
       if (!r.ok) {
-        setRealisticError(data.error || 'Generation failed');
+        // Show both the error and the details so the user can see exactly
+        // what OpenAI said (e.g. content policy, rate limit, etc.).
+        const detail = data.details ? `\n${data.details}` : '';
+        setRealisticError(`${data.error || 'Generation failed'}${detail}`);
         return;
       }
       setRealisticImageUrl(data.imageUrl);
@@ -1467,20 +1492,22 @@ export default function NeedlepointDesigner() {
               <button onClick={() => setShowRealistic(false)} className="btn-icon"><X size={18} /></button>
             </div>
             <div style={{ fontSize: 13, color: '#831843', marginBottom: 12, lineHeight: 1.5 }}>
-              We'll generate a photo-realistic mockup of how your finished piece could look,
-              using AI. Give a short description so the model knows what your design shows
-              (e.g. "navy G letter in a red oval ring" or "I LOVE THAT FOR YOU in navy serif").
+              AI will look at your pattern and generate a photo-realistic mockup of how it
+              could look stitched and finished. <strong>Description is optional</strong> — only
+              add one if the AI is misreading the design. <em>Avoid brand names like "UGA"
+              or "Nike"</em> (DALL-E refuses to render trademarks). Describe what's visible
+              instead: "a black G letter in a red oval".
             </div>
             <label className="body-font" style={{ fontSize: 11, fontWeight: 700, display: 'block', marginBottom: 6 }}>
-              Describe your design
+              Extra description <span style={{ fontWeight: 400, color: '#831843' }}>(optional)</span>
             </label>
             <textarea
               className="text-input"
               value={realisticDescription}
               onChange={(e) => setRealisticDescription(e.target.value)}
-              rows={3}
-              placeholder="e.g. a navy G letter logo in a red oval ring, on white background"
-              style={{ resize: 'vertical', minHeight: 70, fontFamily: '"Nunito", sans-serif', fontWeight: 500, marginBottom: 14 }}
+              rows={2}
+              placeholder="Usually leave blank — only fill in if AI is misreading the design"
+              style={{ resize: 'vertical', minHeight: 50, fontFamily: '"Nunito", sans-serif', fontWeight: 500, marginBottom: 14 }}
             />
             <button
               onClick={generateRealistic}
@@ -1511,9 +1538,9 @@ export default function NeedlepointDesigner() {
               </div>
             )}
             <div style={{ marginTop: 14, padding: 10, background: 'rgba(0,0,0,0.04)', borderRadius: 10, fontSize: 11, color: '#831843', lineHeight: 1.4 }}>
-              ⚠️ <strong>Testing feature.</strong> AI render is a "vibe match" — it shows what a needlepoint
-              piece of this style/colors could look like, not a pixel-perfect copy of your pattern. Each
-              generation costs ~$0.04 in API credits.
+              ⚠️ <strong>Testing feature.</strong> AI looks at your pattern then generates a
+              styled mockup — close in vibe and content but not pixel-perfect. Each generation
+              costs ~$0.05 in OpenAI API credits (vision read + image generation).
             </div>
           </div>
         </div>
@@ -2266,7 +2293,7 @@ export default function NeedlepointDesigner() {
                                 const c = palette[v]?.hex || '#fff';
                                 renderBg = '#FAF5F2';
                                 renderBgImage =
-                                  `linear-gradient(135deg, transparent 10%, ${c} 10%, ${c} 90%, transparent 90%)`;
+                                  `linear-gradient(135deg, transparent 28%, ${c} 28%, ${c} 72%, transparent 72%)`;
                               }
                             }
                             return (
