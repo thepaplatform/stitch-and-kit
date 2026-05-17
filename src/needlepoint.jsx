@@ -929,136 +929,89 @@ export default function NeedlepointDesigner() {
     c2.font = '16px Georgia'; c2.fillStyle = '#831843';
     c2.fillText(`${title} · ${widthStitches} × ${heightStitches} stitches · ${mesh} mesh`, PAGE_W / 2, 90);
 
+    // Chart sized to ~55% of page height so the thread list fits below
+    // on the same page — keeps the export to 3 pages instead of 5.
+    const threadTableTop = 1000;
     const chartScale2 = Math.min(
       (PAGE_W - margin * 2) / widthStitches,
-      (PAGE_H - 200) / heightStitches
+      (threadTableTop - 160) / heightStitches
     );
     const chartW2 = widthStitches * chartScale2;
     const chartH2 = heightStitches * chartScale2;
     const chartX2 = (PAGE_W - chartW2) / 2;
     const chartY2 = 130;
-    // Color chart now includes the symbol inside each cell — like Furbish
-    // and NeedlepointAfterDark charts. User can identify the DMC color by
-    // either its color OR its symbol on the same page.
+    // Color chart with the symbol inside each cell — like Furbish and
+    // NeedlepointAfterDark charts. Color OR symbol identifies the DMC thread.
     drawGridToContext(c2, gridData, palette, chartScale2, chartX2, chartY2, {
       useSymbols: true, bw: false, showGuides10: true,
       drawShapeOutline: true, sh: shape,
     });
-    c2.textAlign = 'center'; c2.fillStyle = '#831843'; c2.font = 'italic 14px Georgia';
-    c2.fillText(`Each symbol = a DMC color (see thread list) · Bold lines every 10 stitches · Pink crosshair = center`, PAGE_W / 2, chartY2 + chartH2 + 35);
+    c2.textAlign = 'center'; c2.fillStyle = '#831843'; c2.font = 'italic 13px Georgia';
+    c2.fillText(`Each symbol = a DMC color (see legend below) · Bold lines every 10 stitches · Pink crosshair = center`, PAGE_W / 2, chartY2 + chartH2 + 25);
+
+    // ============ THREAD LEGEND (same page, below the chart) ============
+    const legendY = threadTableTop;
+    c2.fillStyle = '#5B1735'; c2.font = 'bold 22px Georgia';
+    c2.textAlign = 'left';
+    c2.fillText(`🧵 Thread List — ${palette.length} DMC colors · ${palette.reduce((s, p) => s + p.count, 0).toLocaleString()} total stitches`, margin, legendY);
+    c2.strokeStyle = '#5B1735'; c2.lineWidth = 2;
+    c2.beginPath(); c2.moveTo(margin, legendY + 12); c2.lineTo(PAGE_W - margin, legendY + 12); c2.stroke();
+
+    // Two-column layout to fit more colors on the page.
+    const colsCount = palette.length <= 5 ? 1 : 2;
+    const colWidth = (PAGE_W - margin * 2) / colsCount;
+    const rowH = 44;
+    palette.forEach((p, i) => {
+      const col = i % colsCount;
+      const row = Math.floor(i / colsCount);
+      const xBase = margin + col * colWidth;
+      const yy = legendY + 50 + row * rowH;
+      if (yy > PAGE_H - 50) return;
+      // Subtle zebra stripe per row (uses 'row' index so both columns align)
+      if (row % 2 === 0) {
+        c2.fillStyle = 'rgba(0, 0, 0, 0.035)';
+        c2.fillRect(xBase, yy - 18, colWidth - 20, rowH - 4);
+      }
+      // Color swatch
+      c2.fillStyle = p.hex; c2.fillRect(xBase + 8, yy - 14, 28, 28);
+      c2.strokeStyle = '#5B1735'; c2.lineWidth = 1; c2.strokeRect(xBase + 8, yy - 14, 28, 28);
+      // Symbol overlay on the swatch
+      c2.fillStyle = (0.299*p.rgb[0] + 0.587*p.rgb[1] + 0.114*p.rgb[2]) < 128 ? '#fff' : '#000';
+      c2.font = 'bold 18px Georgia';
+      c2.textAlign = 'center'; c2.textBaseline = 'middle';
+      c2.fillText(SYMBOLS[i % SYMBOLS.length], xBase + 22, yy + 0);
+      c2.textBaseline = 'alphabetic'; c2.textAlign = 'left';
+      // DMC + name + stitch count in one line
+      c2.fillStyle = '#5B1735'; c2.font = 'bold 14px Georgia';
+      c2.fillText(p.dmc ? `DMC ${p.dmc}` : '—', xBase + 48, yy);
+      c2.font = '13px Georgia'; c2.fillStyle = '#831843';
+      const nameMax = colWidth - 230;
+      let nameTxt = p.name || 'Custom color';
+      // Truncate long color names so the stitch count fits.
+      while (c2.measureText(nameTxt).width > nameMax && nameTxt.length > 6) {
+        nameTxt = nameTxt.slice(0, -1);
+      }
+      if (nameTxt !== (p.name || 'Custom color')) nameTxt += '…';
+      c2.fillText(nameTxt, xBase + 120, yy);
+      c2.font = 'bold 13px Georgia'; c2.fillStyle = '#EC4899';
+      c2.textAlign = 'right';
+      c2.fillText(`${p.count.toLocaleString()} st`, xBase + colWidth - 30, yy);
+      c2.textAlign = 'left';
+    });
+
+    c2.textAlign = 'center'; c2.fillStyle = '#831843'; c2.font = 'italic 11px Georgia';
+    c2.fillText('💕 Buy DMC floss by number at any craft store · ~150-200 stitches per skein 💕', PAGE_W / 2, PAGE_H - 30);
     if (shopName) {
-      c2.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 30);
+      c2.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 12);
     }
-    const fname2 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-2-color-chart.png`;
+    const fname2 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-2-chart-and-threads.png`;
     images.push(await canvasToImage(page2, fname2));
     setExportedImages([...images]);
     await downloadCanvas(page2, fname2);
     await new Promise(r => setTimeout(r, 400));
-    setExportProgress('Generating symbol chart...');
-
-    // ============ PAGE 3: B&W SYMBOL CHART ============
-    const page3 = document.createElement('canvas');
-    page3.width = PAGE_W; page3.height = PAGE_H;
-    const c3 = page3.getContext('2d');
-    c3.fillStyle = '#ffffff'; c3.fillRect(0, 0, PAGE_W, PAGE_H);
-    c3.fillStyle = '#000'; c3.font = 'bold 36px Georgia';
-    c3.textAlign = 'center';
-    c3.fillText('Symbol Chart (B&W)', PAGE_W / 2, 60);
-    c3.font = '16px Georgia';
-    c3.fillText(`${title} · Prints clearly in black & white`, PAGE_W / 2, 90);
-
-    drawGridToContext(c3, gridData, palette, chartScale2, chartX2, chartY2, {
-      useSymbols: true, bw: true, showGuides10: true,
-      drawShapeOutline: true, sh: shape,
-    });
-    c3.textAlign = 'center'; c3.fillStyle = '#555'; c3.font = 'italic 14px Georgia';
-    c3.fillText(`Each symbol corresponds to a DMC color — see thread list`, PAGE_W / 2, chartY2 + chartH2 + 35);
-    if (shopName) {
-      c3.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 30);
-    }
-    const fname3 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-3-symbol-chart.png`;
-    images.push(await canvasToImage(page3, fname3));
-    setExportedImages([...images]);
-    await downloadCanvas(page3, fname3);
-    await new Promise(r => setTimeout(r, 400));
-    setExportProgress('Generating thread list...');
-
-    // ============ PAGE 4: THREAD LIST ============
-    const page4 = document.createElement('canvas');
-    page4.width = PAGE_W; page4.height = PAGE_H;
-    const c4 = page4.getContext('2d');
-    // White page bg — see cover page note about ink/toner.
-    c4.fillStyle = '#ffffff'; c4.fillRect(0, 0, PAGE_W, PAGE_H);
-    c4.fillStyle = '#5B1735'; c4.font = 'bold 40px Georgia';
-    c4.textAlign = 'center';
-    c4.fillText('🧵 Thread List', PAGE_W / 2, 70);
-    c4.font = '18px Georgia'; c4.fillStyle = '#831843';
-    c4.fillText(`${palette.length} DMC floss colors · ${palette.reduce((s, p) => s + p.count, 0).toLocaleString()} total stitches`, PAGE_W / 2, 105);
-
-    // Table
-    const tableX = margin;
-    const tableY = 160;
-    const rowH = 56;
-    const colWidths = [80, 140, 380, 180, 150]; // Symbol, DMC#, Name, Hex, Stitches
-    const headers = ['Symbol', 'DMC #', 'Color Name', 'Hex', 'Stitches'];
-    c4.textAlign = 'left';
-    c4.fillStyle = '#5B1735'; c4.font = 'bold 18px Georgia';
-    let xPos = tableX;
-    headers.forEach((h, i) => {
-      c4.fillText(h, xPos + 10, tableY);
-      xPos += colWidths[i];
-    });
-    c4.strokeStyle = '#5B1735'; c4.lineWidth = 2;
-    c4.beginPath(); c4.moveTo(tableX, tableY + 10); c4.lineTo(tableX + colWidths.reduce((a, b) => a + b, 0), tableY + 10); c4.stroke();
-
-    c4.font = '17px Georgia';
-    palette.forEach((p, i) => {
-      const yy = tableY + 30 + i * rowH;
-      if (yy > PAGE_H - 60) return; // overflow protection
-      // alternating row bg
-      if (i % 2 === 0) {
-        // Subtle gray zebra stripe (was rgba-white over gradient; invisible on
-        // a pure white bg, so use a faint gray instead — barely any ink).
-        c4.fillStyle = 'rgba(0, 0, 0, 0.04)';
-        c4.fillRect(tableX, yy - 22, colWidths.reduce((a, b) => a + b, 0), rowH - 4);
-      }
-      let x = tableX;
-      // Symbol
-      c4.fillStyle = '#000'; c4.font = 'bold 28px Georgia'; c4.textAlign = 'center';
-      c4.fillText(SYMBOLS[i % SYMBOLS.length], x + colWidths[0] / 2, yy + 5);
-      x += colWidths[0];
-      c4.textAlign = 'left'; c4.font = 'bold 17px Georgia'; c4.fillStyle = '#5B1735';
-      // DMC #
-      c4.fillText(p.dmc || '—', x + 10, yy + 4);
-      x += colWidths[1];
-      // Name
-      c4.font = '16px Georgia';
-      c4.fillText(p.name || 'Custom color', x + 10, yy + 4);
-      x += colWidths[2];
-      // Hex swatch + code
-      c4.fillStyle = p.hex; c4.fillRect(x + 10, yy - 16, 32, 32);
-      c4.strokeStyle = '#5B1735'; c4.lineWidth = 1; c4.strokeRect(x + 10, yy - 16, 32, 32);
-      c4.fillStyle = '#5B1735'; c4.font = '15px Georgia';
-      c4.fillText(p.hex.toUpperCase(), x + 50, yy + 4);
-      x += colWidths[3];
-      // Stitches
-      c4.fillStyle = '#831843'; c4.font = 'bold 17px Georgia';
-      c4.fillText(p.count.toLocaleString(), x + 10, yy + 4);
-    });
-
-    c4.textAlign = 'center'; c4.fillStyle = '#831843'; c4.font = 'italic 14px Georgia';
-    c4.fillText('💕 Buy DMC floss by number at any craft store · 1 skein covers ~150-200 stitches on 18 mesh 💕', PAGE_W / 2, PAGE_H - 50);
-    if (shopName) {
-      c4.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 25);
-    }
-    const fname4 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-4-thread-list.png`;
-    images.push(await canvasToImage(page4, fname4));
-    setExportedImages([...images]);
-    await downloadCanvas(page4, fname4);
-    await new Promise(r => setTimeout(r, 400));
     setExportProgress('Generating stitched preview...');
 
-    // ============ PAGE 5: STITCHED LOOK PREVIEW ============
+    // ============ PAGE 3: STITCHED LOOK PREVIEW (was page 5) ============
     const page5 = document.createElement('canvas');
     page5.width = PAGE_W; page5.height = PAGE_H;
     const c5 = page5.getContext('2d');
@@ -1084,7 +1037,7 @@ export default function NeedlepointDesigner() {
     if (shopName) {
       c5.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 30);
     }
-    const fname5 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-5-stitched-preview.png`;
+    const fname5 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-3-stitched-preview.png`;
     images.push(await canvasToImage(page5, fname5));
     setExportedImages([...images]);
     await downloadCanvas(page5, fname5);
@@ -1765,7 +1718,7 @@ export default function NeedlepointDesigner() {
                 <FileText size={16} />{exportStatus === 'working' ? 'Working...' : 'Full Pattern Bundle ✨'}
               </button>
               <div style={{ fontSize: 11, color: '#831843', lineHeight: 1.5, padding: '0 8px' }}>
-                5 letter-sized pages (150 dpi): cover page with details, color chart, B&W symbol chart, thread list, and stitched preview showing how the finished piece will look. Combine into a PDF using Canva, Pages, or Acrobat.
+                3 letter-sized pages (150 dpi): cover with project details, color chart with symbols and thread list on one page, and a stitched preview showing how the finished piece will look. Combine into a PDF using Canva, Pages, or Acrobat.
               </div>
 
               <div style={{ height: 1, background: '#A855F7', margin: '8px 0' }} />
@@ -1905,12 +1858,11 @@ export default function NeedlepointDesigner() {
                 <button
                   className={`btn btn-sm ${inputMode === 'text' ? 'active' : ''}`}
                   onClick={() => {
+                    // Phrase mode works on any project shape/size now —
+                    // belt logo, ornament, stocking, custom, all of it.
+                    // The phrase renderer just fills whatever grid dimensions
+                    // the current project has, so users can do text on any blank.
                     setInputMode('text');
-                    // If current project doesn't suit text, switch to a phrase pillow
-                    const curr = PROJECTS[projectKey];
-                    if (curr && !projectKey.includes('phrase')) {
-                      loadProject('phrase_pillow_md');
-                    }
                   }}
                   style={{ flex: 1, justifyContent: 'center', fontSize: 12 }}
                 >
@@ -2381,18 +2333,22 @@ export default function NeedlepointDesigner() {
                                   'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(91,23,53,0.08) 2px, rgba(91,23,53,0.08) 3px),' +
                                   'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(91,23,53,0.08) 2px, rgba(91,23,53,0.08) 3px)';
                               } else {
-                                // Stitched bead: cell-color base + a 135deg gradient
-                                // that adds a white highlight in the top-left and a
-                                // subtle dark shadow in the bottom-right. Plus an
-                                // inset box-shadow for extra depth and a hint of
-                                // rounding so it doesn't read as a flat grid.
+                                // Stitched bead with diagonal thread character.
+                                // Layered gradients:
+                                //   1. Corner shading for 3D depth (highlight TL,
+                                //      shadow BR — reads as raised stitch)
+                                //   2. Bright diagonal stripe down the middle —
+                                //      suggests the actual tent-stitch thread
+                                //      direction, so it reads as a stitch and
+                                //      not just a generic 3D pixel.
                                 renderBg = color;
                                 renderBgImage =
-                                  'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.12) 35%, transparent 55%, rgba(0,0,0,0.18) 100%)';
-                                const insetPx = Math.max(1, Math.floor(cellSize * 0.07));
+                                  'linear-gradient(135deg, rgba(255,255,255,0.40) 0%, transparent 35%, rgba(0,0,0,0.20) 100%),' +
+                                  'linear-gradient(135deg, transparent 32%, rgba(255,255,255,0.28) 48%, rgba(255,255,255,0.28) 52%, transparent 68%)';
+                                const insetPx = Math.max(1, Math.floor(cellSize * 0.06));
                                 previewBoxShadow =
-                                  `inset ${insetPx}px ${insetPx}px 0 rgba(255,255,255,0.25),` +
-                                  ` inset -${insetPx}px -${insetPx}px 0 rgba(0,0,0,0.12)`;
+                                  `inset ${insetPx}px ${insetPx}px 0 rgba(255,255,255,0.22),` +
+                                  ` inset -${insetPx}px -${insetPx}px 0 rgba(0,0,0,0.15)`;
                                 previewRadius = Math.max(1, Math.floor(cellSize * 0.18));
                               }
                             }
