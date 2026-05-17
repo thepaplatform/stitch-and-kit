@@ -11,6 +11,15 @@
     <meta property="og:image" content="/brand/og-image.svg" />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#EC4899" />
+    <!-- Preconnect to Google Fonts CDNs so the TCP/TLS handshake happens in
+         parallel with HTML parsing — saves ~100-200ms on first paint, esp.
+         on cellular where round-trip latency is high. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Font CSS loaded via <link> instead of inline <style>@import so the
+         browser starts fetching font files immediately on HTML parse, not
+         after the JS bundle has finished executing. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Pacifico&family=Cinzel:wght@700;900&family=Playfair+Display:ital,wght@0,900;1,900&family=Dancing+Script:wght@700&family=Lobster&family=Bebas+Neue&family=Permanent+Marker&display=swap" />
   </head>
   <body>
     <div id="root"></div>
