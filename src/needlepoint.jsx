@@ -1637,7 +1637,7 @@ export default function NeedlepointDesigner() {
           </button>
         </div>
 
-        <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 340px) 1fr', gap: 18 }}>
+        <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 340px) 1fr', gap: 18, alignItems: 'start' }}>
           <div className="sidebar-cards" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div className="card">
               <div className="section-label"><Sparkles size={14} /> Project Type<InfoTip text="What you're making — sets the canvas mesh, dimensions, and shape automatically." /></div>
@@ -2131,29 +2131,23 @@ export default function NeedlepointDesigner() {
                               const lum = (0.299*r + 0.587*g + 0.114*b);
                               textColor = lum < 128 ? '#fff' : '#000';
                             }
-                            // In Preview mode, draw each cell as an X-stitch using
-                            // two CSS linear gradients instead of a flat color block.
-                            // The canvas color shows through the diagonals so it
-                            // reads like an actual stitched piece. Pure CSS — no
-                            // canvas, no refs, can't crash on mount.
-                            let renderBg = color;
-                            let renderBgImage = isMasked
-                              ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(192,132,245,0.3) 2px, rgba(192,132,245,0.3) 4px)'
+                            // In Preview mode, give each cell a small inset border
+                            // of canvas color so the stitches read as separated
+                            // tiles with mesh showing through — like real stitched
+                            // needlepoint. Scales with cellSize so it looks right
+                            // at every zoom level. Pure CSS, no canvas, can't break.
+                            const insetSize = Math.max(1, Math.floor(cellSize * 0.12));
+                            const previewBoxShadow = (isPreview && !isEmpty && !isMasked)
+                              ? `inset 0 0 0 ${insetSize}px #FAF5F2`
                               : 'none';
-                            if (isPreview && !isEmpty && !isMasked) {
-                              const c = palette[v]?.hex || '#fff';
-                              renderBg = '#FAF5F2'; // warm canvas color
-                              renderBgImage =
-                                `linear-gradient(45deg, transparent 30%, ${c} 30%, ${c} 70%, transparent 70%),` +
-                                `linear-gradient(135deg, transparent 30%, ${c} 30%, ${c} 70%, transparent 70%)`;
-                            }
                             return (
                               <div key={i} data-cell data-x={x} data-y={y}
                                 onMouseEnter={() => setHoveredCell({x: x+1, y: y+1, color: (isEmpty || isMasked) ? null : palette[v]?.hex, idx: v, masked: isMasked, dmc: palette[v]?.dmc, name: palette[v]?.name})}
                                 onMouseLeave={() => setHoveredCell(null)}
                                 style={{
-                                  background: renderBg,
-                                  backgroundImage: renderBgImage,
+                                  background: color,
+                                  backgroundImage: isMasked ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(192,132,245,0.3) 2px, rgba(192,132,245,0.3) 4px)' : 'none',
+                                  boxShadow: previewBoxShadow,
                                   borderRight, borderBottom,
                                   borderTop: isPreview ? 'none' : (y === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
                                   borderLeft: isPreview ? 'none' : (x === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
