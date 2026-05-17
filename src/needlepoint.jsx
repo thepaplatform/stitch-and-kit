@@ -413,6 +413,41 @@ export default function NeedlepointDesigner() {
     setGridData(cleaned); recountPalette(cleaned);
   };
 
+  // Aggressive version of cleanup that targets specifically the "isolated"
+  // stitches the pill counter calls out — cells with no same-color 4-connected
+  // neighbor get replaced with the most common orthogonal neighbor color.
+  // smoothGrid is too conservative for these (requires 5+ matching neighbors
+  // elsewhere), so isolated stitches at edges and transition zones survive.
+  const cleanupIsolated = () => {
+    if (!gridData) return;
+    pushHistory();
+    const h = gridData.length;
+    const w = gridData[0].length;
+    const next = gridData.map(r => [...r]);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const v = gridData[y][x];
+        if (v < 0) continue;
+        const neighbors = [];
+        if (y > 0 && gridData[y-1][x] >= 0) neighbors.push(gridData[y-1][x]);
+        if (y < h-1 && gridData[y+1][x] >= 0) neighbors.push(gridData[y+1][x]);
+        if (x > 0 && gridData[y][x-1] >= 0) neighbors.push(gridData[y][x-1]);
+        if (x < w-1 && gridData[y][x+1] >= 0) neighbors.push(gridData[y][x+1]);
+        // Has a same-color neighbor? Not isolated, leave alone.
+        if (neighbors.includes(v)) continue;
+        // Isolated — replace with dominant neighbor.
+        const counts = {};
+        for (const n of neighbors) counts[n] = (counts[n] || 0) + 1;
+        let bestV = -1, bestCount = 0;
+        for (const k in counts) {
+          if (counts[k] > bestCount) { bestCount = counts[k]; bestV = +k; }
+        }
+        if (bestV >= 0) next[y][x] = bestV;
+      }
+    }
+    setGridData(next); recountPalette(next);
+  };
+
   const handleCellAction = (x, y) => {
     if (!editMode) return;
     const val = drawAction === 'erase' ? -1 : selectedColorIdx;
@@ -2145,8 +2180,8 @@ export default function NeedlepointDesigner() {
                     })()}
                     {isolatedStitchCount > 5 && (
                       <button
-                        onClick={cleanupNow}
-                        title="Run a smoothing pass to merge scattered loner stitches into surrounding shapes"
+                        onClick={cleanupIsolated}
+                        title="Replace each isolated stitch with its dominant neighbor color — strong cleanup. Use Undo if you don't like the result."
                         style={{
                           border: '1.5px solid #EC4899', background: '#FCE7F3', color: '#831843',
                           padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 700,
