@@ -2131,23 +2131,39 @@ export default function NeedlepointDesigner() {
                               const lum = (0.299*r + 0.587*g + 0.114*b);
                               textColor = lum < 128 ? '#fff' : '#000';
                             }
-                            // In Preview mode, give each cell a small inset border
-                            // of canvas color so the stitches read as separated
-                            // tiles with mesh showing through — like real stitched
-                            // needlepoint. Scales with cellSize so it looks right
-                            // at every zoom level. Pure CSS, no canvas, can't break.
-                            const insetSize = Math.max(1, Math.floor(cellSize * 0.12));
-                            const previewBoxShadow = (isPreview && !isEmpty && !isMasked)
-                              ? `inset 0 0 0 ${insetSize}px #FAF5F2`
+                            // In Preview mode, draw each stitched cell as a SINGLE
+                            // diagonal stripe — that's a tent stitch (the standard
+                            // needlepoint stitch covering one mesh hole with one
+                            // diagonal thread). When neighboring same-color cells
+                            // share the pattern, the diagonals connect into a
+                            // continuous slanted color band, which is exactly how
+                            // finished needlepoint reads visually.
+                            let renderBg = color;
+                            let renderBgImage = isMasked
+                              ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(192,132,245,0.3) 2px, rgba(192,132,245,0.3) 4px)'
                               : 'none';
+                            if (isPreview && !isMasked) {
+                              if (isEmpty) {
+                                // Unstitched: subtle mesh pattern (the bare canvas).
+                                renderBg = '#FAF5F2';
+                                renderBgImage =
+                                  'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(91,23,53,0.08) 2px, rgba(91,23,53,0.08) 3px),' +
+                                  'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(91,23,53,0.08) 2px, rgba(91,23,53,0.08) 3px)';
+                              } else {
+                                // Stitched: one diagonal band of color (tent stitch).
+                                const c = palette[v]?.hex || '#fff';
+                                renderBg = '#FAF5F2';
+                                renderBgImage =
+                                  `linear-gradient(135deg, transparent 18%, ${c} 18%, ${c} 82%, transparent 82%)`;
+                              }
+                            }
                             return (
                               <div key={i} data-cell data-x={x} data-y={y}
                                 onMouseEnter={() => setHoveredCell({x: x+1, y: y+1, color: (isEmpty || isMasked) ? null : palette[v]?.hex, idx: v, masked: isMasked, dmc: palette[v]?.dmc, name: palette[v]?.name})}
                                 onMouseLeave={() => setHoveredCell(null)}
                                 style={{
-                                  background: color,
-                                  backgroundImage: isMasked ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(192,132,245,0.3) 2px, rgba(192,132,245,0.3) 4px)' : 'none',
-                                  boxShadow: previewBoxShadow,
+                                  background: renderBg,
+                                  backgroundImage: renderBgImage,
                                   borderRight, borderBottom,
                                   borderTop: isPreview ? 'none' : (y === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
                                   borderLeft: isPreview ? 'none' : (x === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
