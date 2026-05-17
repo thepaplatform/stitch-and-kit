@@ -356,6 +356,47 @@ const buildPalette = ({ textColor, bgColor, borderColor, borderAccentColor, bord
 
 // ---------- main entry point ----------
 
+// Draw a border along the perimeter of a circle/oval shape: a ring of
+// decorative elements (flowers/leaves/hearts/etc) following the curve,
+// instead of rectangular strips that get clipped by the shape mask.
+const drawShapedBorder = (grid, style, mainValue, accentValue, w, h, t) => {
+  if (style === 'none' || t <= 0) return;
+  const cx = w / 2;
+  const cy = h / 2;
+  // Outer ring radius — sit just inside the shape edge.
+  const rxOuter = w / 2 - 1;
+  const ryOuter = h / 2 - 1;
+  // Inner ring radius — leave room for the text area.
+  const rxInner = Math.max(2, rxOuter - t);
+  const ryInner = Math.max(2, ryOuter - t);
+  // Number of decorative elements: scale with the perimeter.
+  const perim = Math.PI * (rxOuter + ryOuter);
+  // Element spacing depends on element size — bigger elements, fewer of them.
+  const fr = Math.max(2, Math.floor(t * 0.4));
+  const elementSpacing = Math.max(3, fr * 2.5);
+  const count = Math.max(6, Math.floor(perim / elementSpacing));
+  // Pick where on the radius the decoration sits.
+  const rxMid = (rxOuter + rxInner) / 2;
+  const ryMid = (ryOuter + ryInner) / 2;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const x = Math.round(cx + rxMid * Math.cos(angle));
+    const y = Math.round(cy + ryMid * Math.sin(angle));
+    // Choose how each style stamps along the ring.
+    if (style === 'floral_vine' || style === 'flower_row') {
+      stampFlower(grid, x, y, fr, accentValue, mainValue);
+    } else if (style === 'hearts') {
+      stampHeart(grid, x, y, accentValue);
+    } else if (style === 'dot_grid' || style === 'scallop') {
+      stampCircle(grid, x, y, fr, accentValue || mainValue);
+    } else {
+      // solid / double / dashed / gingham / rope_twist → draw a small filled
+      // block at each position to form a beaded ring outline.
+      stampCircle(grid, x, y, Math.max(1, Math.floor(fr * 0.7)), mainValue);
+    }
+  }
+};
+
 export const renderPhraseToGrid = ({
   text,
   fontKey,
@@ -367,6 +408,7 @@ export const renderPhraseToGrid = ({
   borderColor,
   borderAccentColor,
   useDMC,
+  shape = 'rectangle',
 }) => {
   const { colors, indexByRole } = buildPalette({
     textColor, bgColor, borderColor, borderAccentColor, borderStyle, useDMC,
@@ -380,17 +422,36 @@ export const renderPhraseToGrid = ({
   const grid = Array.from({ length: heightStitches }, () =>
     new Array(widthStitches).fill(bgIdx));
 
-  // Border thickness scales with the smaller dimension, like the old renderer.
+  // Border thickness scales with the smaller dimension.
   const minDim = Math.min(widthStitches, heightStitches);
   const borderThickness = borderStyle === 'none' ? 0 : Math.max(2, Math.round(minDim * 0.10));
-  drawBorderToGrid(grid, borderStyle, borderIdx, accentIdx, 0, 0, widthStitches, heightStitches, borderThickness);
+  const isCurved = shape === 'circle' || shape === 'oval';
+  if (isCurved) {
+    drawShapedBorder(grid, borderStyle, borderIdx, accentIdx, widthStitches, heightStitches, borderThickness);
+  } else {
+    drawBorderToGrid(grid, borderStyle, borderIdx, accentIdx, 0, 0, widthStitches, heightStitches, borderThickness);
+  }
 
-  // Text layout area: inside the border, with a small padding gutter.
+  // Text layout area: inset further on curved shapes so text stays within
+  // the inscribed rectangle of the circle/oval (otherwise it overflows).
   const padding = 2;
-  const textBoxX = borderThickness + padding;
-  const textBoxY = borderThickness + padding;
-  const textBoxW = Math.max(0, widthStitches - 2 * (borderThickness + padding));
-  const textBoxH = Math.max(0, heightStitches - 2 * (borderThickness + padding));
+  let textBoxX = borderThickness + padding;
+  let textBoxY = borderThickness + padding;
+  let textBoxW = Math.max(0, widthStitches - 2 * (borderThickness + padding));
+  let textBoxH = Math.max(0, heightStitches - 2 * (borderThickness + padding));
+  if (isCurved) {
+    // Inscribed rectangle of an ellipse with radii (rx, ry) has half-axes
+    // (rx/√2, ry/√2). Use that as the safe text area, plus border inset.
+    const SQRT2 = Math.SQRT2;
+    const innerRx = Math.max(0, widthStitches / 2 - borderThickness - padding);
+    const innerRy = Math.max(0, heightStitches / 2 - borderThickness - padding);
+    const inscribedW = Math.floor((innerRx * 2) / SQRT2);
+    const inscribedH = Math.floor((innerRy * 2) / SQRT2);
+    textBoxW = inscribedW;
+    textBoxH = inscribedH;
+    textBoxX = Math.floor((widthStitches - inscribedW) / 2);
+    textBoxY = Math.floor((heightStitches - inscribedH) / 2);
+  }
 
   const font = PHRASE_FONTS[fontKey] || PHRASE_FONTS['chunky_10x14'];
 

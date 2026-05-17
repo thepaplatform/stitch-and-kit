@@ -56,11 +56,6 @@ export default function NeedlepointDesigner() {
   const [dmcSearch, setDmcSearch] = useState('');
   const [showProjectPicker, setShowProjectPicker] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [showRealistic, setShowRealistic] = useState(false);
-  const [realisticDescription, setRealisticDescription] = useState('');
-  const [realisticLoading, setRealisticLoading] = useState(false);
-  const [realisticError, setRealisticError] = useState(null);
-  const [realisticImageUrl, setRealisticImageUrl] = useState(null);
   const [showGlossary, setShowGlossary] = useState(false);
   const [showExportPicker, setShowExportPicker] = useState(false);
   const [zoomLevel, setZoomLevel] = useState('fit');
@@ -427,60 +422,6 @@ export default function NeedlepointDesigner() {
   // ACTUAL pattern as a small PNG so the server can run GPT-4 Vision on it
   // and DALL-E sees what the design actually shows (not just a vague
   // typed description from the user).
-  const generateRealistic = async () => {
-    setRealisticLoading(true);
-    setRealisticError(null);
-    setRealisticImageUrl(null);
-    try {
-      // Render the pattern into a small canvas → base64. 320px max keeps the
-      // image small enough to send over the wire without choking GPT-4V.
-      let designImageBase64 = null;
-      if (gridData) {
-        const w = gridData[0]?.length || 0;
-        const h = gridData.length;
-        if (w > 0 && h > 0) {
-          const targetMax = 320;
-          const scale = Math.max(1, Math.floor(targetMax / Math.max(w, h)));
-          const cv = document.createElement('canvas');
-          cv.width = w * scale;
-          cv.height = h * scale;
-          const ctx = cv.getContext('2d');
-          drawGridToContext(ctx, gridData, palette, scale, 0, 0, {
-            useSymbols: false, bw: false, showGuides10: false,
-            drawShapeOutline: false, sh: shape,
-          });
-          designImageBase64 = cv.toDataURL('image/png').split(',')[1];
-        }
-      }
-
-      const r = await fetch('/api/realistic-preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          designImageBase64,
-          description: realisticDescription,
-          projectKey,
-          widthIn,
-          heightIn,
-          colors: palette.map(p => ({ name: p.name, hex: p.hex, dmc: p.dmc })),
-        }),
-      });
-      const data = await r.json();
-      if (!r.ok) {
-        // Show both the error and the details so the user can see exactly
-        // what OpenAI said (e.g. content policy, rate limit, etc.).
-        const detail = data.details ? `\n${data.details}` : '';
-        setRealisticError(`${data.error || 'Generation failed'}${detail}`);
-        return;
-      }
-      setRealisticImageUrl(data.imageUrl);
-    } catch (err) {
-      setRealisticError(String(err));
-    } finally {
-      setRealisticLoading(false);
-    }
-  };
-
   const cleanupIsolated = () => {
     if (!gridData) return;
     pushHistory();
@@ -598,12 +539,13 @@ export default function NeedlepointDesigner() {
       borderColor: phraseBorderColor,
       borderAccentColor: phraseBorderAccentColor,
       useDMC,
+      shape,
     });
     setGridData(grid);
     setPalette(newPalette);
     setHistory([]);
     setImageName(`Phrase: ${phraseText.split('\n')[0].slice(0, 20)}`);
-  }, [inputMode, phraseText, phraseFont, phraseTextColor, phraseBgColor, phraseBorderStyle, phraseBorderColor, phraseBorderAccentColor, widthStitches, heightStitches, useDMC, fontsReady]);
+  }, [inputMode, phraseText, phraseFont, phraseTextColor, phraseBgColor, phraseBorderStyle, phraseBorderColor, phraseBorderAccentColor, widthStitches, heightStitches, useDMC, fontsReady, shape]);
 
   // Track grid container width so Fit zoom can adapt to viewport. We measure
   // the .grid-scroll element's content box (the area inside its padding) via
@@ -1527,69 +1469,6 @@ export default function NeedlepointDesigner() {
         </div>
       )}
 
-      {/* Realistic preview modal — calls OpenAI DALL-E via our Vercel function */}
-      {showRealistic && (
-        <div className="modal-overlay" onClick={() => setShowRealistic(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div className="display-font glitter-text" style={{ fontSize: 24 }}>🪡 Realistic Preview ✨</div>
-              <button onClick={() => setShowRealistic(false)} className="btn-icon"><X size={18} /></button>
-            </div>
-            <div style={{ fontSize: 13, color: '#831843', marginBottom: 12, lineHeight: 1.5 }}>
-              AI will look at your pattern and generate a photo-realistic mockup of how it
-              could look stitched and finished. <strong>Description is optional</strong> — only
-              add one if the AI is misreading the design. <em>Avoid brand names like "UGA"
-              or "Nike"</em> (DALL-E refuses to render trademarks). Describe what's visible
-              instead: "a black G letter in a red oval".
-            </div>
-            <label className="body-font" style={{ fontSize: 11, fontWeight: 700, display: 'block', marginBottom: 6 }}>
-              Extra description <span style={{ fontWeight: 400, color: '#831843' }}>(optional)</span>
-            </label>
-            <textarea
-              className="text-input"
-              value={realisticDescription}
-              onChange={(e) => setRealisticDescription(e.target.value)}
-              rows={2}
-              placeholder="Usually leave blank — only fill in if AI is misreading the design"
-              style={{ resize: 'vertical', minHeight: 50, fontFamily: '"Nunito", sans-serif', fontWeight: 500, marginBottom: 14 }}
-            />
-            <button
-              onClick={generateRealistic}
-              disabled={realisticLoading}
-              className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center', padding: '12px', opacity: realisticLoading ? 0.5 : 1 }}
-            >
-              {realisticLoading ? '✨ Generating (~15-30s)...' : '🪡 Generate Realistic Preview'}
-            </button>
-            {realisticError && (
-              <div style={{ marginTop: 14, padding: 12, background: '#FFE0E0', border: '2px solid #cc0000', borderRadius: 12, fontSize: 12, color: '#5B1735', lineHeight: 1.5 }}>
-                <strong>Error:</strong> {realisticError}
-              </div>
-            )}
-            {realisticImageUrl && (
-              <div style={{ marginTop: 16 }}>
-                <div className="body-font" style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: '#831843' }}>
-                  Your finished-piece mockup:
-                </div>
-                <img
-                  src={realisticImageUrl}
-                  alt="Realistic preview"
-                  style={{ width: '100%', borderRadius: 14, border: '3px solid #5B1735', boxShadow: '4px 4px 0 #5B1735' }}
-                />
-                <div style={{ marginTop: 8, fontSize: 11, color: '#831843', textAlign: 'center' }}>
-                  Right-click (desktop) or long-press (mobile) to save.
-                </div>
-              </div>
-            )}
-            <div style={{ marginTop: 14, padding: 10, background: 'rgba(0,0,0,0.04)', borderRadius: 10, fontSize: 11, color: '#831843', lineHeight: 1.4 }}>
-              ⚠️ <strong>Testing feature.</strong> AI looks at your pattern then generates a
-              styled mockup — close in vibe and content but not pixel-perfect. Each generation
-              costs ~$0.05 in OpenAI API credits (vision read + image generation).
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Project picker modal */}
       {showProjectPicker && (
         <div className="modal-overlay" onClick={() => setShowProjectPicker(false)}>
@@ -2139,13 +2018,6 @@ export default function NeedlepointDesigner() {
                 <button className="btn btn-primary" onClick={() => setShowExportPicker(true)} style={{ width: '100%', justifyContent: 'center', marginBottom: 10 }}>
                   <Download size={14} />Export Options ✨
                 </button>
-                <button
-                  onClick={() => { setShowRealistic(true); setRealisticImageUrl(null); setRealisticError(null); }}
-                  className="btn"
-                  style={{ width: '100%', justifyContent: 'center', marginBottom: 10, background: 'linear-gradient(135deg, #FCD34D, #EC4899)', color: 'white', borderColor: '#5B1735' }}
-                >
-                  🪡 Realistic Preview <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(0,0,0,0.2)', padding: '2px 6px', borderRadius: 6, marginLeft: 4 }}>BETA</span>
-                </button>
                 <button className="btn" onClick={reset} style={{ width: '100%', justifyContent: 'center' }}>
                   <RotateCcw size={14} />Start Over
                 </button>
@@ -2178,7 +2050,10 @@ export default function NeedlepointDesigner() {
                     <Palette size={11} />Numbered
                   </button>
                   <button className={`btn btn-sm ${viewMode === 'preview' && !editMode ? 'active' : ''}`} onClick={() => { setViewMode('preview'); setEditMode(false); }}>
-                    <Eye size={11} />Preview
+                    <Eye size={11} />3D
+                  </button>
+                  <button className={`btn btn-sm ${viewMode === 'stitch' ? 'active' : ''}`} onClick={() => { setViewMode('stitch'); setEditMode(false); }}>
+                    ✕ Stitch
                   </button>
                   <div style={{ width: 2, height: 22, background: '#A855F7', margin: '0 2px', borderRadius: 1 }} />
                   <button className={`btn btn-sm ${editMode ? 'active' : ''}`} onClick={() => setEditMode(!editMode)}>
@@ -2305,8 +2180,13 @@ export default function NeedlepointDesigner() {
                             // wants to paint stitches while seeing the design as
                             // actual needlepoint, not flat colored squares.
                             const isPreview = viewMode === 'preview';
-                            const borderRight = showGuides && (x + 1) % 10 === 0 && x !== widthStitches - 1 ? '1.5px solid #EC4899' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
-                            const borderBottom = showGuides && (y + 1) % 10 === 0 && y !== heightStitches - 1 ? '1.5px solid #EC4899' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
+                            // New 2D flat-stitch view: single diagonal stripe per
+                            // cell on a canvas-color background, no 3D effect.
+                            // Easier to read at fine zoom levels than the bead.
+                            const isStitchView = viewMode === 'stitch';
+                            const hideBorders = isPreview || isStitchView;
+                            const borderRight = showGuides && (x + 1) % 10 === 0 && x !== widthStitches - 1 ? '1.5px solid #EC4899' : (hideBorders ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
+                            const borderBottom = showGuides && (y + 1) % 10 === 0 && y !== heightStitches - 1 ? '1.5px solid #EC4899' : (hideBorders ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
                             let textColor = '#000';
                             if (!isEmpty && !isMasked) {
                               const [r,g,b] = palette[v].rgb;
@@ -2352,6 +2232,18 @@ export default function NeedlepointDesigner() {
                                 previewRadius = Math.max(1, Math.floor(cellSize * 0.18));
                               }
                             }
+                            // Stitch view: simple flat diagonal stripe per cell.
+                            if (isStitchView && !isMasked) {
+                              if (isEmpty) {
+                                renderBg = '#FAF5F2';
+                                renderBgImage = 'none';
+                              } else {
+                                const c = palette[v]?.hex || '#fff';
+                                renderBg = '#FAF5F2';
+                                renderBgImage =
+                                  `linear-gradient(135deg, transparent 25%, ${c} 25%, ${c} 75%, transparent 75%)`;
+                              }
+                            }
                             return (
                               <div key={i} data-cell data-x={x} data-y={y}
                                 onMouseEnter={() => setHoveredCell({x: x+1, y: y+1, color: (isEmpty || isMasked) ? null : palette[v]?.hex, idx: v, masked: isMasked, dmc: palette[v]?.dmc, name: palette[v]?.name})}
@@ -2360,8 +2252,8 @@ export default function NeedlepointDesigner() {
                                   background: renderBg,
                                   backgroundImage: renderBgImage,
                                   borderRight, borderBottom,
-                                  borderTop: isPreview ? 'none' : (y === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
-                                  borderLeft: isPreview ? 'none' : (x === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
+                                  borderTop: hideBorders ? 'none' : (y === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
+                                  borderLeft: hideBorders ? 'none' : (x === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
                                   borderRadius: previewRadius,
                                   boxShadow: previewBoxShadow,
                                   width: cellSize, height: cellSize,
