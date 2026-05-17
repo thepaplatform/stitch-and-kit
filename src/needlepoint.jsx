@@ -2125,7 +2125,10 @@ export default function NeedlepointDesigner() {
                             // and switched from "v+1" indices to the canonical
                             // SYMBOLS used in the printed chart for consistency.
                             const showSymbol = viewMode === 'numbered' && !editMode && !isEmpty && !isMasked && cellSize >= 7;
-                            const isPreview = viewMode === 'preview' && !editMode;
+                            // Preview styling now applies in edit mode too — user
+                            // wants to paint stitches while seeing the design as
+                            // actual needlepoint, not flat colored squares.
+                            const isPreview = viewMode === 'preview';
                             const borderRight = showGuides && (x + 1) % 10 === 0 && x !== widthStitches - 1 ? '1.5px solid #EC4899' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
                             const borderBottom = showGuides && (y + 1) % 10 === 0 && y !== heightStitches - 1 ? '1.5px solid #EC4899' : (isPreview ? 'none' : '1px solid rgba(122, 51, 153, 0.2)');
                             let textColor = '#000';
