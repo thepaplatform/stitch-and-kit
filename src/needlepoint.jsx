@@ -1095,9 +1095,7 @@ export default function NeedlepointDesigner() {
       overflowY: 'auto',
     }}>
       <style>{`
-        /* Fonts loaded via <link> in index.html for parallel fetching — no
-           inline @import here to avoid blocking first paint while waiting
-           for the React bundle to mount and inject this <style>. */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&family=VT323&family=Cinzel:wght@700;900&family=Playfair+Display:ital,wght@0,900;1,900&family=Dancing+Script:wght@700&family=Lobster&family=Bebas+Neue&family=Permanent+Marker&display=swap');
         body { margin: 0; }
         * { -webkit-tap-highlight-color: transparent; }
         @keyframes sparkle {
