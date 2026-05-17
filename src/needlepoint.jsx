@@ -1082,9 +1082,12 @@ export default function NeedlepointDesigner() {
       padding: '16px 8px',
       color: '#5B1735',
       position: 'relative',
-      overflowX: 'hidden',
-      // Was overflowY:'auto' — that created a new scrolling context which
-      // broke `position: sticky` on .preview-area. Use document-level scroll.
+      // CSS quirk: when overflow-x is `hidden`, the computed overflow-y is
+      // forced to a non-visible value too, which creates a scrolling context
+      // and breaks position:sticky on .preview-area. `overflow-x: clip` does
+      // the same horizontal containment WITHOUT creating a scroll context,
+      // so sticky binds to the document scroll like we want.
+      overflowX: 'clip',
       overflowY: 'visible',
     }}>
       <style>{`
@@ -2154,7 +2157,7 @@ export default function NeedlepointDesigner() {
                                 const c = palette[v]?.hex || '#fff';
                                 renderBg = '#FAF5F2';
                                 renderBgImage =
-                                  `linear-gradient(135deg, transparent 18%, ${c} 18%, ${c} 82%, transparent 82%)`;
+                                  `linear-gradient(135deg, transparent 10%, ${c} 10%, ${c} 90%, transparent 90%)`;
                               }
                             }
                             return (
