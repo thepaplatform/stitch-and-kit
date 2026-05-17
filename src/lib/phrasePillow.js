@@ -409,6 +409,10 @@ export const renderPhraseToGrid = ({
   borderAccentColor,
   useDMC,
   shape = 'rectangle',
+  // Multiplier on the auto-computed text size. 1.0 = auto-fit (largest
+  // size that fits). <1 = smaller letters. >1 = larger letters that may
+  // bleed toward or into the border area.
+  textScale = 1.0,
 }) => {
   const { colors, indexByRole } = buildPalette({
     textColor, bgColor, borderColor, borderAccentColor, borderStyle, useDMC,
@@ -464,6 +468,7 @@ export const renderPhraseToGrid = ({
       grid,
       textBoxX, textBoxY, textBoxW, textBoxH,
       textIdx,
+      textScale,
     });
   } else if (textBoxW > 0 && textBoxH > 0) {
     const charW = font.w;
@@ -482,7 +487,10 @@ export const renderPhraseToGrid = ({
     // whole-multiple scaling and rely on font choice to fill the box.
     const scaleByW = Math.floor(textBoxW / lineCharsW);
     const scaleByH = Math.floor(textBoxH / totalCharsH);
-    const sc = Math.max(1, Math.min(scaleByW, scaleByH));
+    // Auto-fit scale, then apply user multiplier (clamp at 1 minimum so the
+    // bitmap never shrinks below its native resolution).
+    const autoSc = Math.min(scaleByW, scaleByH);
+    const sc = Math.max(1, Math.round(autoSc * textScale));
 
     const renderedW = lineCharsW * sc;
     const renderedH = totalCharsH * sc;

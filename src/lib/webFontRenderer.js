@@ -45,6 +45,8 @@ const findBestFontSize = (ctx, lines, spec, cw, ch, lineHeightMul) => {
 export const renderWebFontText = ({
   text, fontSpec,
   grid, textBoxX, textBoxY, textBoxW, textBoxH, textIdx,
+  // 1.0 = auto-fit (largest size that fits). Multiplier on the auto-sized text.
+  textScale = 1.0,
 }) => {
   if (!text || textBoxW <= 0 || textBoxH <= 0) return;
 
@@ -62,7 +64,9 @@ export const renderWebFontText = ({
   canvas.height = ch;
   const ctx = canvas.getContext('2d');
 
-  const fontSize = findBestFontSize(ctx, lines, fontSpec, cw, ch, lineHeightMul);
+  // Auto-fit size, then apply the user's multiplier.
+  const autoFontSize = findBestFontSize(ctx, lines, fontSpec, cw, ch, lineHeightMul);
+  const fontSize = Math.max(6, Math.round(autoFontSize * textScale));
   ctx.font = cssFont(fontSpec, fontSize);
   ctx.fillStyle = '#000';
   ctx.textAlign = 'center';

@@ -16,6 +16,9 @@ export default function NeedlepointDesigner() {
   const [phraseBorderStyle, setPhraseBorderStyle] = useState('floral_vine');
   const [phraseBorderColor, setPhraseBorderColor] = useState('#7ba428'); // green vine
   const [phraseBorderAccentColor, setPhraseBorderAccentColor] = useState('#ff6ec4'); // pink flowers
+  // 100 = auto-fit (largest size that fits). Below = more breathing room.
+  // Above = bigger letters that may extend toward the border edge.
+  const [phraseTextScale, setPhraseTextScale] = useState(100);
   // Toggled true once the web fonts (Cinzel, Playfair, Pacifico, etc.) finish
   // loading. Including this in the text-mode useEffect deps re-runs render
   // after fonts arrive, so users don't see Times-fallback letters flash first.
@@ -540,12 +543,13 @@ export default function NeedlepointDesigner() {
       borderAccentColor: phraseBorderAccentColor,
       useDMC,
       shape,
+      textScale: phraseTextScale / 100,
     });
     setGridData(grid);
     setPalette(newPalette);
     setHistory([]);
     setImageName(`Phrase: ${phraseText.split('\n')[0].slice(0, 20)}`);
-  }, [inputMode, phraseText, phraseFont, phraseTextColor, phraseBgColor, phraseBorderStyle, phraseBorderColor, phraseBorderAccentColor, widthStitches, heightStitches, useDMC, fontsReady, shape]);
+  }, [inputMode, phraseText, phraseFont, phraseTextColor, phraseBgColor, phraseBorderStyle, phraseBorderColor, phraseBorderAccentColor, widthStitches, heightStitches, useDMC, fontsReady, shape, phraseTextScale]);
 
   // Track grid container width so Fit zoom can adapt to viewport. We measure
   // the .grid-scroll element's content box (the area inside its padding) via
@@ -1789,6 +1793,30 @@ export default function NeedlepointDesigner() {
                         <option key={k} value={k}>{f.name} — {f.note}</option>
                       ))}
                     </select>
+                  </div>
+
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <label className="body-font" style={{ fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+                        Text size<InfoTip text="100% = auto-fit (largest size that fits). Lower for more breathing room, higher to fill more of the canvas (may overflow into the border at very high values)." />
+                      </label>
+                      <span className="mono-font" style={{ fontSize: 12, fontWeight: 700, color: '#EC4899' }}>
+                        {phraseTextScale}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="40"
+                      max="150"
+                      step="5"
+                      value={phraseTextScale}
+                      onChange={(e) => setPhraseTextScale(+e.target.value)}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#831843', marginTop: 4, fontWeight: 600 }}>
+                      <span>small</span>
+                      <button onClick={() => setPhraseTextScale(100)} style={{ background: 'none', border: 'none', color: '#A855F7', cursor: 'pointer', fontSize: 10, fontWeight: 700, padding: 0 }}>reset to auto-fit</button>
+                      <span>large</span>
+                    </div>
                   </div>
 
                   <div style={{ marginBottom: 12 }}>
