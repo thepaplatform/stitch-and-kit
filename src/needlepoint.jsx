@@ -1083,7 +1083,9 @@ export default function NeedlepointDesigner() {
       color: '#5B1735',
       position: 'relative',
       overflowX: 'hidden',
-      overflowY: 'auto',
+      // Was overflowY:'auto' — that created a new scrolling context which
+      // broke `position: sticky` on .preview-area. Use document-level scroll.
+      overflowY: 'visible',
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&family=VT323&family=Cinzel:wght@700;900&family=Playfair+Display:ital,wght@0,900;1,900&family=Dancing+Script:wght@700&family=Lobster&family=Bebas+Neue&family=Permanent+Marker&display=swap');
@@ -2129,13 +2131,29 @@ export default function NeedlepointDesigner() {
                               const lum = (0.299*r + 0.587*g + 0.114*b);
                               textColor = lum < 128 ? '#fff' : '#000';
                             }
+                            // In Preview mode, draw each cell as an X-stitch using
+                            // two CSS linear gradients instead of a flat color block.
+                            // The canvas color shows through the diagonals so it
+                            // reads like an actual stitched piece. Pure CSS — no
+                            // canvas, no refs, can't crash on mount.
+                            let renderBg = color;
+                            let renderBgImage = isMasked
+                              ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(192,132,245,0.3) 2px, rgba(192,132,245,0.3) 4px)'
+                              : 'none';
+                            if (isPreview && !isEmpty && !isMasked) {
+                              const c = palette[v]?.hex || '#fff';
+                              renderBg = '#FAF5F2'; // warm canvas color
+                              renderBgImage =
+                                `linear-gradient(45deg, transparent 30%, ${c} 30%, ${c} 70%, transparent 70%),` +
+                                `linear-gradient(135deg, transparent 30%, ${c} 30%, ${c} 70%, transparent 70%)`;
+                            }
                             return (
                               <div key={i} data-cell data-x={x} data-y={y}
                                 onMouseEnter={() => setHoveredCell({x: x+1, y: y+1, color: (isEmpty || isMasked) ? null : palette[v]?.hex, idx: v, masked: isMasked, dmc: palette[v]?.dmc, name: palette[v]?.name})}
                                 onMouseLeave={() => setHoveredCell(null)}
                                 style={{
-                                  background: color,
-                                  backgroundImage: isMasked ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(192,132,245,0.3) 2px, rgba(192,132,245,0.3) 4px)' : 'none',
+                                  background: renderBg,
+                                  backgroundImage: renderBgImage,
                                   borderRight, borderBottom,
                                   borderTop: isPreview ? 'none' : (y === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
                                   borderLeft: isPreview ? 'none' : (x === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
