@@ -728,17 +728,40 @@ export default function NeedlepointDesigner() {
     }
   };
 
-  // Draw the design as tent-stitches (diagonal threads) on a canvas. Used in
-  // the export bundle so the printed pattern includes a "this is what the
-  // finished piece will look like" page alongside the color/symbol charts.
+  // Draw the design as 3D-shaded beads on a canvas. Each cell becomes a
+  // colored block with a diagonal light→dark gradient overlay so it reads
+  // like a raised needlepoint stitch — the same look as the in-app preview.
+  // Used in the export bundle so the printed pattern includes a
+  // "this is what the finished piece will look like" page.
   const drawStitchedToContext = (c, gridD, pal, scale, offsetX, offsetY) => {
     const w = gridD[0].length;
     const h = gridD.length;
-    // Faint canvas-color background (the bare mesh).
+    // Faint canvas background for the bare mesh.
     c.fillStyle = '#FAF5F2';
     c.fillRect(offsetX, offsetY, w * scale, h * scale);
-    // Subtle mesh grid suggestion at every other row/col.
-    c.strokeStyle = 'rgba(91, 23, 53, 0.06)';
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const v = gridD[y][x];
+        if (v < 0) continue;
+        const entry = pal[v];
+        if (!entry || !entry.hex) continue;
+        const px = offsetX + x * scale;
+        const py = offsetY + y * scale;
+        // Base color fill.
+        c.fillStyle = entry.hex;
+        c.fillRect(px, py, scale, scale);
+        // Diagonal highlight + shadow gradient for 3D bead effect.
+        const grad = c.createLinearGradient(px, py, px + scale, py + scale);
+        grad.addColorStop(0, 'rgba(255,255,255,0.45)');
+        grad.addColorStop(0.35, 'rgba(255,255,255,0.10)');
+        grad.addColorStop(0.55, 'rgba(0,0,0,0)');
+        grad.addColorStop(1, 'rgba(0,0,0,0.20)');
+        c.fillStyle = grad;
+        c.fillRect(px, py, scale, scale);
+      }
+    }
+    // Subtle mesh grid lines drawn on top for canvas separation.
+    c.strokeStyle = 'rgba(91, 23, 53, 0.08)';
     c.lineWidth = 0.5;
     for (let x = 0; x <= w; x++) {
       c.beginPath();
@@ -751,23 +774,6 @@ export default function NeedlepointDesigner() {
       c.moveTo(offsetX, offsetY + y * scale);
       c.lineTo(offsetX + w * scale, offsetY + y * scale);
       c.stroke();
-    }
-    // Tent stitches — one diagonal per cell.
-    c.lineCap = 'round';
-    c.lineWidth = Math.max(1, scale * 0.42);
-    const pad = Math.max(0.5, scale * 0.16);
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        const v = gridD[y][x];
-        if (v < 0) continue;
-        const entry = pal[v];
-        if (!entry || !entry.hex) continue;
-        c.strokeStyle = entry.hex;
-        c.beginPath();
-        c.moveTo(offsetX + x * scale + pad, offsetY + y * scale + scale - pad);
-        c.lineTo(offsetX + x * scale + scale - pad, offsetY + y * scale + pad);
-        c.stroke();
-      }
     }
   };
 
@@ -2355,17 +2361,18 @@ export default function NeedlepointDesigner() {
                               const lum = (0.299*r + 0.587*g + 0.114*b);
                               textColor = lum < 128 ? '#fff' : '#000';
                             }
-                            // In Preview mode, draw each stitched cell as a SINGLE
-                            // diagonal stripe — that's a tent stitch (the standard
-                            // needlepoint stitch covering one mesh hole with one
-                            // diagonal thread). When neighboring same-color cells
-                            // share the pattern, the diagonals connect into a
-                            // continuous slanted color band, which is exactly how
-                            // finished needlepoint reads visually.
+                            // In Preview mode, render each stitched cell as a 3D
+                            // shaded "bead" — colored fill plus a diagonal
+                            // light→dark gradient overlay so it reads like a
+                            // raised needlepoint stitch sitting on canvas.
+                            // Inspired by the cute pixelated needlepoint product
+                            // shots (sailboat reference). No AI needed.
                             let renderBg = color;
                             let renderBgImage = isMasked
                               ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(192,132,245,0.3) 2px, rgba(192,132,245,0.3) 4px)'
                               : 'none';
+                            let previewBoxShadow = 'none';
+                            let previewRadius = 0;
                             if (isPreview && !isMasked) {
                               if (isEmpty) {
                                 // Unstitched: subtle mesh pattern (the bare canvas).
@@ -2374,11 +2381,19 @@ export default function NeedlepointDesigner() {
                                   'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(91,23,53,0.08) 2px, rgba(91,23,53,0.08) 3px),' +
                                   'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(91,23,53,0.08) 2px, rgba(91,23,53,0.08) 3px)';
                               } else {
-                                // Stitched: one diagonal band of color (tent stitch).
-                                const c = palette[v]?.hex || '#fff';
-                                renderBg = '#FAF5F2';
+                                // Stitched bead: cell-color base + a 135deg gradient
+                                // that adds a white highlight in the top-left and a
+                                // subtle dark shadow in the bottom-right. Plus an
+                                // inset box-shadow for extra depth and a hint of
+                                // rounding so it doesn't read as a flat grid.
+                                renderBg = color;
                                 renderBgImage =
-                                  `linear-gradient(135deg, transparent 28%, ${c} 28%, ${c} 72%, transparent 72%)`;
+                                  'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.12) 35%, transparent 55%, rgba(0,0,0,0.18) 100%)';
+                                const insetPx = Math.max(1, Math.floor(cellSize * 0.07));
+                                previewBoxShadow =
+                                  `inset ${insetPx}px ${insetPx}px 0 rgba(255,255,255,0.25),` +
+                                  ` inset -${insetPx}px -${insetPx}px 0 rgba(0,0,0,0.12)`;
+                                previewRadius = Math.max(1, Math.floor(cellSize * 0.18));
                               }
                             }
                             return (
@@ -2391,6 +2406,8 @@ export default function NeedlepointDesigner() {
                                   borderRight, borderBottom,
                                   borderTop: isPreview ? 'none' : (y === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
                                   borderLeft: isPreview ? 'none' : (x === 0 ? '1px solid rgba(122,51,153,0.2)' : 'none'),
+                                  borderRadius: previewRadius,
+                                  boxShadow: previewBoxShadow,
                                   width: cellSize, height: cellSize,
                                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                                   fontSize: Math.max(6, Math.min(14, cellSize * 0.6)), color: textColor,
