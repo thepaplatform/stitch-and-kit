@@ -722,6 +722,49 @@ export default function NeedlepointDesigner() {
     }
   };
 
+  // Draw the design as tent-stitches (diagonal threads) on a canvas. Used in
+  // the export bundle so the printed pattern includes a "this is what the
+  // finished piece will look like" page alongside the color/symbol charts.
+  const drawStitchedToContext = (c, gridD, pal, scale, offsetX, offsetY) => {
+    const w = gridD[0].length;
+    const h = gridD.length;
+    // Faint canvas-color background (the bare mesh).
+    c.fillStyle = '#FAF5F2';
+    c.fillRect(offsetX, offsetY, w * scale, h * scale);
+    // Subtle mesh grid suggestion at every other row/col.
+    c.strokeStyle = 'rgba(91, 23, 53, 0.06)';
+    c.lineWidth = 0.5;
+    for (let x = 0; x <= w; x++) {
+      c.beginPath();
+      c.moveTo(offsetX + x * scale, offsetY);
+      c.lineTo(offsetX + x * scale, offsetY + h * scale);
+      c.stroke();
+    }
+    for (let y = 0; y <= h; y++) {
+      c.beginPath();
+      c.moveTo(offsetX, offsetY + y * scale);
+      c.lineTo(offsetX + w * scale, offsetY + y * scale);
+      c.stroke();
+    }
+    // Tent stitches — one diagonal per cell.
+    c.lineCap = 'round';
+    c.lineWidth = Math.max(1, scale * 0.42);
+    const pad = Math.max(0.5, scale * 0.16);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const v = gridD[y][x];
+        if (v < 0) continue;
+        const entry = pal[v];
+        if (!entry || !entry.hex) continue;
+        c.strokeStyle = entry.hex;
+        c.beginPath();
+        c.moveTo(offsetX + x * scale + pad, offsetY + y * scale + scale - pad);
+        c.lineTo(offsetX + x * scale + scale - pad, offsetY + y * scale + pad);
+        c.stroke();
+      }
+    }
+  };
+
   // EXPORT: Pattern preview (the simple PNG, what we had before)
   const exportPreviewPNG = () => {
     if (!gridData) return;
@@ -997,6 +1040,39 @@ export default function NeedlepointDesigner() {
     images.push(await canvasToImage(page4, fname4));
     setExportedImages([...images]);
     await downloadCanvas(page4, fname4);
+    await new Promise(r => setTimeout(r, 400));
+    setExportProgress('Generating stitched preview...');
+
+    // ============ PAGE 5: STITCHED LOOK PREVIEW ============
+    const page5 = document.createElement('canvas');
+    page5.width = PAGE_W; page5.height = PAGE_H;
+    const c5 = page5.getContext('2d');
+    c5.fillStyle = '#ffffff'; c5.fillRect(0, 0, PAGE_W, PAGE_H);
+    c5.fillStyle = '#5B1735'; c5.font = 'bold 36px Georgia';
+    c5.textAlign = 'center';
+    c5.fillText('Stitched Preview', PAGE_W / 2, 60);
+    c5.font = '16px Georgia'; c5.fillStyle = '#831843';
+    c5.fillText(`How ${title} will look when finished — tent stitches on canvas`, PAGE_W / 2, 90);
+
+    const stitchScale = Math.min(
+      (PAGE_W - margin * 2) / widthStitches,
+      (PAGE_H - 200) / heightStitches
+    );
+    const stitchW = widthStitches * stitchScale;
+    const stitchH = heightStitches * stitchScale;
+    const stitchX = (PAGE_W - stitchW) / 2;
+    const stitchY = 130;
+    drawStitchedToContext(c5, gridData, palette, stitchScale, stitchX, stitchY);
+
+    c5.textAlign = 'center'; c5.fillStyle = '#831843'; c5.font = 'italic 14px Georgia';
+    c5.fillText(`Each diagonal mark = one tent stitch · same colors as the color chart`, PAGE_W / 2, stitchY + stitchH + 35);
+    if (shopName) {
+      c5.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 30);
+    }
+    const fname5 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-5-stitched-preview.png`;
+    images.push(await canvasToImage(page5, fname5));
+    setExportedImages([...images]);
+    await downloadCanvas(page5, fname5);
 
     setExportStatus('done');
     setExportProgress('Done! Scroll down to view & save each page below.');
@@ -1674,7 +1750,7 @@ export default function NeedlepointDesigner() {
                 <FileText size={16} />{exportStatus === 'working' ? 'Working...' : 'Full Pattern Bundle ✨'}
               </button>
               <div style={{ fontSize: 11, color: '#831843', lineHeight: 1.5, padding: '0 8px' }}>
-                4 letter-sized pages (150 dpi): cover page with details, color chart, B&W symbol chart, thread list. Combine into a PDF using Canva, Pages, or Acrobat.
+                5 letter-sized pages (150 dpi): cover page with details, color chart, B&W symbol chart, thread list, and stitched preview showing how the finished piece will look. Combine into a PDF using Canva, Pages, or Acrobat.
               </div>
 
               <div style={{ height: 1, background: '#A855F7', margin: '8px 0' }} />

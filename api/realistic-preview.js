@@ -107,44 +107,61 @@ export default async function handler(req, res) {
 
   const prompt = buildPrompt({ visionDescription, fallbackDescription, projectKey, widthIn, heightIn, colors });
 
-  try {
-    const r = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'dall-e-3',
-        prompt,
-        n: 1,
-        size: '1024x1024',
-        quality: 'standard',
-      }),
-    });
+  // Try newer model first (gpt-image-1, widely-rolled-out 2025), then fall
+  // back to dall-e-3, then dall-e-2. Different accounts have different model
+  // access, so the fallback chain maximizes the chance one of them works.
+  const MODELS = ['gpt-image-1', 'dall-e-3', 'dall-e-2'];
+  let lastError = null;
+  let lastErrorStatus = 500;
+  let lastModel = null;
 
-    if (!r.ok) {
-      const text = await r.text();
-      // Parse OpenAI's error JSON for a clean message if possible.
-      let openaiMessage = text;
-      try {
-        const parsed = JSON.parse(text);
-        openaiMessage = parsed?.error?.message || text;
-      } catch {}
-      return res.status(r.status).json({
-        error: 'OpenAI rejected the request',
-        details: openaiMessage,
-        prompt,
-        visionDescription,
+  for (const model of MODELS) {
+    lastModel = model;
+    // dall-e-3 requires explicit "quality" param; gpt-image-1 uses defaults.
+    const requestBody = model === 'dall-e-3'
+      ? { model, prompt, n: 1, size: '1024x1024', quality: 'standard' }
+      : { model, prompt, n: 1, size: '1024x1024' };
+    try {
+      const r = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
       });
+
+      if (!r.ok) {
+        const text = await r.text();
+        let openaiMessage = text;
+        try { openaiMessage = JSON.parse(text)?.error?.message || text; } catch {}
+        lastError = openaiMessage;
+        lastErrorStatus = r.status;
+        // If it's a "model not found" error, try the next one. Other errors
+        // (rate limit, billing) won't be fixed by switching models — bail.
+        const modelNotFound = /does not exist|not found|do not have access/i.test(openaiMessage);
+        if (modelNotFound) continue;
+        break;
+      }
+      const data = await r.json();
+      // dall-e returns url, gpt-image-1 returns b64_json.
+      let imageUrl = data?.data?.[0]?.url;
+      if (!imageUrl && data?.data?.[0]?.b64_json) {
+        imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
+      }
+      if (!imageUrl) {
+        return res.status(502).json({ error: 'No image in OpenAI response', raw: data, model });
+      }
+      return res.status(200).json({ imageUrl, prompt, visionDescription, model });
+    } catch (err) {
+      lastError = String(err);
     }
-    const data = await r.json();
-    const imageUrl = data?.data?.[0]?.url;
-    if (!imageUrl) {
-      return res.status(502).json({ error: 'No image URL in OpenAI response', raw: data });
-    }
-    return res.status(200).json({ imageUrl, prompt, visionDescription });
-  } catch (err) {
-    return res.status(500).json({ error: 'Server error', details: String(err) });
   }
+
+  return res.status(lastErrorStatus).json({
+    error: `All image models failed (last tried: ${lastModel})`,
+    details: lastError,
+    prompt,
+    visionDescription,
+  });
 }
