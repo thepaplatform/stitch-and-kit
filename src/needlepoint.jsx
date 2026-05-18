@@ -6,6 +6,7 @@ import { PHRASE_FONTS, PHRASE_PRESETS } from './lib/fonts.js';
 import { PHRASE_BORDERS } from './lib/borders.js';
 import { renderPhraseToGrid } from './lib/phrasePillow.js';
 import { decodePattern, encodePhrasePattern, encodeGridPattern } from './lib/shareLink.js';
+import { jsPDF } from 'jspdf';
 
 export default function NeedlepointDesigner() {
   const [projectKey, setProjectKey] = useState('belt');
@@ -852,13 +853,19 @@ export default function NeedlepointDesigner() {
     });
   };
 
-  // EXPORT: Multi-page printable pattern bundle (PNGs)
-  // Generates: 1) Cover/Info page, 2) Color chart, 3) B&W symbol chart, 4) DMC thread list
-  const exportPatternBundle = async () => {
+  // EXPORT: Multi-page printable pattern bundle.
+  // Renders 1) Cover, 2) Color chart + thread list, 3) Stitched preview.
+  // `format` controls how it's delivered:
+  //   'png' (default) → download each page as a separate PNG file.
+  //   'pdf'           → assemble all 3 canvases into a single PDF download.
+  // Either way the page canvases are tracked in `pageCanvases` so the final
+  // step can dispatch on format without rerunning any drawing work.
+  const exportPatternBundle = async (format = 'png') => {
     if (!gridData) return;
     setExportStatus('working');
     setExportProgress('Generating cover page...');
     setExportedImages([]);
+    const pageCanvases = [];
     const images = [];
     try {
     const proj = PROJECTS[projectKey];
@@ -909,17 +916,22 @@ export default function NeedlepointDesigner() {
     c1.fillText('📋 Pattern Details', margin + 30, infoY + 45);
 
     c1.font = '20px Georgia';
+    const totalStitches = palette.reduce((s, p) => s + p.count, 0);
+    const skeinsPerSkein = mesh >= 18 ? 285 : mesh >= 13 ? 190 : 140;
+    const totalSkeins = palette.reduce((s, p) => s + Math.max(1, Math.ceil(p.count / skeinsPerSkein)), 0);
     const details = [
       `Finished Size:  ${widthIn.toFixed(2)}" × ${heightIn.toFixed(2)}"`,
-      `Stitch Count:  ${widthStitches} × ${heightStitches} stitches`,
-      `Canvas:  ${mesh} mesh`,
+      `Stitch Count:  ${widthStitches} × ${heightStitches} stitches  (${totalStitches.toLocaleString()} total)`,
+      `Canvas Mesh:  ${mesh} count (${mesh} stitches per inch)`,
       proj.usesStretcherBars
-        ? `Stretcher Bars:  ${stretcherBars.barW}" × ${stretcherBars.barH}" (2 pairs, ${stretcherBars.isMini ? 'mini ½" OK' : 'regular ¾"–1"'})`
-        : `Mounting:  ${proj.name} blank (no stretcher bars needed)`,
+        ? `Canvas Size to Buy:  ${stretcherBars.barW}" × ${stretcherBars.barH}"  (design + 2" margin all sides)`
+        : `Mounting:  ${proj.name} blank — pre-cut, no stretcher bars needed`,
+      proj.usesStretcherBars
+        ? `Stretcher Bars:  ${stretcherBars.barW}" + ${stretcherBars.barH}" pair (${stretcherBars.isMini ? 'mini ½" works' : 'regular ¾"–1" recommended'})`
+        : null,
       `Shape:  ${shape}`,
-      `Total Stitches:  ${palette.reduce((s, p) => s + p.count, 0).toLocaleString()}`,
-      `Colors:  ${palette.length} DMC floss colors`,
-    ];
+      `Colors:  ${palette.length} DMC floss · ~${totalSkeins} total skeins needed`,
+    ].filter(Boolean);
     details.forEach((line, i) => {
       c1.fillText(line, margin + 30, infoY + 90 + i * 36);
     });
@@ -933,10 +945,13 @@ export default function NeedlepointDesigner() {
     }
 
     const fname1 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-1-cover.png`;
-    images.push(await canvasToImage(page1, fname1));
-    setExportedImages([...images]);
-    await downloadCanvas(page1, fname1);
-    await new Promise(r => setTimeout(r, 400));
+    pageCanvases.push(page1);
+    if (format === 'png') {
+      images.push(await canvasToImage(page1, fname1));
+      setExportedImages([...images]);
+      await downloadCanvas(page1, fname1);
+      await new Promise(r => setTimeout(r, 400));
+    }
     setExportProgress('Generating color chart...');
 
     // ============ PAGE 2: COLOR CHART ============
@@ -950,12 +965,24 @@ export default function NeedlepointDesigner() {
     c2.font = '16px Georgia'; c2.fillStyle = '#831843';
     c2.fillText(`${title} · ${widthStitches} × ${heightStitches} stitches · ${mesh} mesh`, PAGE_W / 2, 90);
 
-    // Chart sized to ~55% of page height so the thread list fits below
-    // on the same page — keeps the export to 3 pages instead of 5.
-    const threadTableTop = 1000;
+    // Skein math — common needlepoint coverage rules of thumb:
+    //   10 mesh, 4 strands of DMC → ~140 stitches per skein
+    //   13 mesh, 3 strands         → ~190 stitches per skein
+    //   18 mesh, 2 strands         → ~285 stitches per skein
+    // Always round up to the next full skein.
+    const stitchesPerSkein = mesh >= 18 ? 285 : mesh >= 13 ? 190 : 140;
+    const skeinCountFor = (stitches) => Math.max(1, Math.ceil(stitches / stitchesPerSkein));
+
+    // Chart sized so it doesn't overlap the thread legend. Leave generous
+    // vertical room based on number of palette colors.
+    const legendRowH = 44;
+    const colsCount = palette.length <= 5 ? 1 : 2;
+    const legendRowsNeeded = Math.ceil(palette.length / colsCount);
+    const legendHeight = 80 + legendRowsNeeded * legendRowH;
+    const threadTableTop = PAGE_H - legendHeight - 70;
     const chartScale2 = Math.min(
       (PAGE_W - margin * 2) / widthStitches,
-      (threadTableTop - 160) / heightStitches
+      (threadTableTop - 180) / heightStitches
     );
     const chartW2 = widthStitches * chartScale2;
     const chartH2 = heightStitches * chartScale2;
@@ -967,8 +994,8 @@ export default function NeedlepointDesigner() {
       useSymbols: true, bw: false, showGuides10: true,
       drawShapeOutline: true, sh: shape,
     });
-    c2.textAlign = 'center'; c2.fillStyle = '#831843'; c2.font = 'italic 13px Georgia';
-    c2.fillText(`Each symbol = a DMC color (see legend below) · Bold lines every 10 stitches · Pink crosshair = center`, PAGE_W / 2, chartY2 + chartH2 + 25);
+    c2.textAlign = 'center'; c2.fillStyle = '#831843'; c2.font = 'italic 12px Georgia';
+    c2.fillText(`Each symbol = a DMC color (see legend below) · Bold lines every 10 stitches · Pink crosshair = center`, PAGE_W / 2, chartY2 + chartH2 + 22);
 
     // ============ THREAD LEGEND (same page, below the chart) ============
     const legendY = threadTableTop;
@@ -978,58 +1005,61 @@ export default function NeedlepointDesigner() {
     c2.strokeStyle = '#5B1735'; c2.lineWidth = 2;
     c2.beginPath(); c2.moveTo(margin, legendY + 12); c2.lineTo(PAGE_W - margin, legendY + 12); c2.stroke();
 
-    // Two-column layout to fit more colors on the page.
-    const colsCount = palette.length <= 5 ? 1 : 2;
     const colWidth = (PAGE_W - margin * 2) / colsCount;
-    const rowH = 44;
     palette.forEach((p, i) => {
       const col = i % colsCount;
       const row = Math.floor(i / colsCount);
       const xBase = margin + col * colWidth;
-      const yy = legendY + 50 + row * rowH;
+      const yy = legendY + 50 + row * legendRowH;
       if (yy > PAGE_H - 50) return;
-      // Subtle zebra stripe per row (uses 'row' index so both columns align)
       if (row % 2 === 0) {
         c2.fillStyle = 'rgba(0, 0, 0, 0.035)';
-        c2.fillRect(xBase, yy - 18, colWidth - 20, rowH - 4);
+        c2.fillRect(xBase, yy - 18, colWidth - 20, legendRowH - 4);
       }
-      // Color swatch
       c2.fillStyle = p.hex; c2.fillRect(xBase + 8, yy - 14, 28, 28);
       c2.strokeStyle = '#5B1735'; c2.lineWidth = 1; c2.strokeRect(xBase + 8, yy - 14, 28, 28);
-      // Symbol overlay on the swatch
       c2.fillStyle = (0.299*p.rgb[0] + 0.587*p.rgb[1] + 0.114*p.rgb[2]) < 128 ? '#fff' : '#000';
       c2.font = 'bold 18px Georgia';
       c2.textAlign = 'center'; c2.textBaseline = 'middle';
       c2.fillText(SYMBOLS[i % SYMBOLS.length], xBase + 22, yy + 0);
       c2.textBaseline = 'alphabetic'; c2.textAlign = 'left';
-      // DMC + name + stitch count in one line
       c2.fillStyle = '#5B1735'; c2.font = 'bold 14px Georgia';
       c2.fillText(p.dmc ? `DMC ${p.dmc}` : '—', xBase + 48, yy);
       c2.font = '13px Georgia'; c2.fillStyle = '#831843';
-      const nameMax = colWidth - 230;
+      // Truncate color name so stitch count + skeins fit
+      const skeins = skeinCountFor(p.count);
+      const skeinsTxt = `${skeins} skein${skeins === 1 ? '' : 's'}`;
+      const rightSideW = 160;
+      const nameMax = colWidth - 130 - rightSideW;
       let nameTxt = p.name || 'Custom color';
-      // Truncate long color names so the stitch count fits.
       while (c2.measureText(nameTxt).width > nameMax && nameTxt.length > 6) {
         nameTxt = nameTxt.slice(0, -1);
       }
       if (nameTxt !== (p.name || 'Custom color')) nameTxt += '…';
       c2.fillText(nameTxt, xBase + 120, yy);
-      c2.font = 'bold 13px Georgia'; c2.fillStyle = '#EC4899';
+      // Stitch count
+      c2.font = '12px Georgia'; c2.fillStyle = '#831843';
       c2.textAlign = 'right';
-      c2.fillText(`${p.count.toLocaleString()} st`, xBase + colWidth - 30, yy);
+      c2.fillText(`${p.count.toLocaleString()} st`, xBase + colWidth - 110, yy);
+      // Skein count
+      c2.font = 'bold 13px Georgia'; c2.fillStyle = '#EC4899';
+      c2.fillText(skeinsTxt, xBase + colWidth - 30, yy);
       c2.textAlign = 'left';
     });
 
     c2.textAlign = 'center'; c2.fillStyle = '#831843'; c2.font = 'italic 11px Georgia';
-    c2.fillText('💕 Buy DMC floss by number at any craft store · ~150-200 stitches per skein 💕', PAGE_W / 2, PAGE_H - 30);
+    c2.fillText(`💕 Skein estimate based on ${stitchesPerSkein} stitches/skein at ${mesh} mesh · always grab 1 extra of background colors 💕`, PAGE_W / 2, PAGE_H - 30);
     if (shopName) {
       c2.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 12);
     }
     const fname2 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-2-chart-and-threads.png`;
-    images.push(await canvasToImage(page2, fname2));
-    setExportedImages([...images]);
-    await downloadCanvas(page2, fname2);
-    await new Promise(r => setTimeout(r, 400));
+    pageCanvases.push(page2);
+    if (format === 'png') {
+      images.push(await canvasToImage(page2, fname2));
+      setExportedImages([...images]);
+      await downloadCanvas(page2, fname2);
+      await new Promise(r => setTimeout(r, 400));
+    }
     setExportProgress('Generating stitched preview...');
 
     // ============ PAGE 3: STITCHED LOOK PREVIEW (was page 5) ============
@@ -1059,12 +1089,37 @@ export default function NeedlepointDesigner() {
       c5.fillText(`© ${shopName}`, PAGE_W / 2, PAGE_H - 30);
     }
     const fname5 = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-3-stitched-preview.png`;
-    images.push(await canvasToImage(page5, fname5));
-    setExportedImages([...images]);
-    await downloadCanvas(page5, fname5);
+    pageCanvases.push(page5);
+    if (format === 'png') {
+      images.push(await canvasToImage(page5, fname5));
+      setExportedImages([...images]);
+      await downloadCanvas(page5, fname5);
+    }
+
+    // PDF assembly — single file with all 3 pages.
+    if (format === 'pdf') {
+      setExportProgress('Assembling PDF...');
+      // Letter at 72 dpi = 612 × 792 points. Each page canvas is 1275 × 1650 px
+      // (letter at 150 dpi). JPEG @ 0.85 keeps file size sane for sharing.
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+      const ptW = 612;
+      const ptH = 792;
+      pageCanvases.forEach((cv, i) => {
+        if (i > 0) pdf.addPage();
+        pdf.addImage(cv.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, ptW, ptH);
+      });
+      const pdfFname = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.pdf`;
+      pdf.save(pdfFname);
+      // Also surface inline previews so iOS users have a visible save fallback.
+      for (let i = 0; i < pageCanvases.length; i++) {
+        const name = i === 0 ? fname1 : i === 1 ? fname2 : fname5;
+        images.push(await canvasToImage(pageCanvases[i], name));
+      }
+      setExportedImages([...images]);
+    }
 
     setExportStatus('done');
-    setExportProgress('Done! Scroll down to view & save each page below.');
+    setExportProgress(format === 'pdf' ? 'PDF downloaded! Pages also shown below for save fallback.' : 'Done! Scroll down to view & save each page below.');
     } catch (err) {
       console.error('Export error:', err);
       setExportStatus('error');
@@ -1708,11 +1763,20 @@ export default function NeedlepointDesigner() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button className="btn btn-primary" onClick={exportPatternBundle} disabled={exportStatus === 'working'} style={{ width: '100%', justifyContent: 'center', padding: '14px', opacity: exportStatus === 'working' ? 0.5 : 1 }}>
-                <FileText size={16} />{exportStatus === 'working' ? 'Working...' : 'Full Pattern Bundle ✨'}
+              <button className="btn btn-primary" onClick={() => exportPatternBundle('pdf')} disabled={exportStatus === 'working'} style={{ width: '100%', justifyContent: 'center', padding: '14px', opacity: exportStatus === 'working' ? 0.5 : 1 }}>
+                <FileText size={16} />{exportStatus === 'working' ? 'Working...' : 'Download PDF (3 pages, one file) ✨'}
               </button>
               <div style={{ fontSize: 11, color: '#831843', lineHeight: 1.5, padding: '0 8px' }}>
-                3 letter-sized pages (150 dpi): cover with project details, color chart with symbols and thread list on one page, and a stitched preview showing how the finished piece will look. Combine into a PDF using Canva, Pages, or Acrobat.
+                Recommended. Single .pdf with cover, color chart + thread list (with skein estimates), and stitched preview. Print or share as one file.
+              </div>
+
+              <div style={{ height: 1, background: '#A855F7', margin: '8px 0' }} />
+
+              <button className="btn" onClick={() => exportPatternBundle('png')} disabled={exportStatus === 'working'} style={{ width: '100%', justifyContent: 'center', opacity: exportStatus === 'working' ? 0.5 : 1 }}>
+                <Download size={14} />Individual PNG pages
+              </button>
+              <div style={{ fontSize: 11, color: '#831843', lineHeight: 1.5, padding: '0 8px' }}>
+                3 separate PNG files. Useful on iPhone if PDF download is blocked — long-press each below to save.
               </div>
 
               <div style={{ height: 1, background: '#A855F7', margin: '8px 0' }} />
@@ -1721,7 +1785,7 @@ export default function NeedlepointDesigner() {
                 <Download size={14} />Quick Preview PNG
               </button>
               <div style={{ fontSize: 11, color: '#831843', lineHeight: 1.5, padding: '0 8px' }}>
-                Single PNG with chart + DMC legend. Good for personal use.
+                Single PNG with chart + DMC legend. Good for quick reference.
               </div>
             </div>
 
