@@ -5,6 +5,7 @@ import { PROJECTS, recommendStretcherBars } from './lib/projects.js';
 import { PHRASE_FONTS, PHRASE_PRESETS } from './lib/fonts.js';
 import { PHRASE_BORDERS } from './lib/borders.js';
 import { renderPhraseToGrid } from './lib/phrasePillow.js';
+import { decodePattern, encodePhrasePattern, encodeGridPattern } from './lib/shareLink.js';
 
 export default function NeedlepointDesigner() {
   const [projectKey, setProjectKey] = useState('belt');
@@ -59,6 +60,8 @@ export default function NeedlepointDesigner() {
   const [dmcSearch, setDmcSearch] = useState('');
   const [showProjectPicker, setShowProjectPicker] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [shareUrl, setShareUrl] = useState(null);
+  const [shareCopied, setShareCopied] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
   const [showExportPicker, setShowExportPicker] = useState(false);
   const [zoomLevel, setZoomLevel] = useState('fit');
@@ -425,6 +428,41 @@ export default function NeedlepointDesigner() {
   // ACTUAL pattern as a small PNG so the server can run GPT-4 Vision on it
   // and DALL-E sees what the design actually shows (not just a vague
   // typed description from the user).
+  // Build a /maker?d=... URL the user can paste anywhere to share the
+  // current design. Phrase patterns serialize their config (small URL).
+  // Image-mode results serialize the full grid (longer but still works).
+  const generateShareUrl = () => {
+    let encoded = null;
+    if (inputMode === 'text') {
+      encoded = encodePhrasePattern({
+        projectKey, widthIn, heightIn, mesh, shape,
+        phraseText, phraseFont, phraseTextColor, phraseBgColor,
+        phraseBorderStyle, phraseBorderColor, phraseBorderAccentColor, phraseTextScale,
+      });
+    } else if (gridData && palette.length > 0) {
+      encoded = encodeGridPattern({
+        projectKey, widthIn, heightIn, mesh, shape, gridData, palette,
+      });
+    }
+    if (!encoded) return;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://stitchandkit.com';
+    const url = `${origin}/maker?d=${encoded}`;
+    setShareUrl(url);
+    setShareCopied(false);
+  };
+
+  const copyShareUrl = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      // fallback for older browsers — show the URL so the user can copy it manually
+      setShareCopied(false);
+    }
+  };
+
   const cleanupIsolated = () => {
     if (!gridData) return;
     pushHistory();
@@ -516,6 +554,43 @@ export default function NeedlepointDesigner() {
     let cancelled = false;
     document.fonts.ready.then(() => { if (!cancelled) setFontsReady(true); });
     return () => { cancelled = true; };
+  }, []);
+
+  // Load a shared pattern from the URL on first mount (?d=...). Either a
+  // phrase config (instant — restoring state triggers the text-mode useEffect)
+  // or a full grid pattern (image-mode result — restored directly into gridData).
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const encoded = params.get('d');
+    if (!encoded) return;
+    const decoded = decodePattern(encoded);
+    if (!decoded) return;
+    // Common project setup
+    if (decoded.projectKey && PROJECTS[decoded.projectKey]) {
+      setProjectKey(decoded.projectKey);
+      setMesh(decoded.mesh || PROJECTS[decoded.projectKey].mesh);
+      setWidthIn(decoded.widthIn || PROJECTS[decoded.projectKey].widthIn);
+      setHeightIn(decoded.heightIn || PROJECTS[decoded.projectKey].heightIn);
+      setShape(decoded.shape || PROJECTS[decoded.projectKey].shape);
+    }
+    if (decoded.type === 'phrase') {
+      setInputMode('text');
+      setPhraseText(decoded.phraseText || '');
+      setPhraseFont(decoded.phraseFont || 'chunky_10x14');
+      setPhraseTextColor(decoded.phraseTextColor || '#1e3a8a');
+      setPhraseBgColor(decoded.phraseBgColor || '#ffffff');
+      setPhraseBorderStyle(decoded.phraseBorderStyle || 'floral_vine');
+      setPhraseBorderColor(decoded.phraseBorderColor || '#7ba428');
+      setPhraseBorderAccentColor(decoded.phraseBorderAccentColor || '#ff6ec4');
+      setPhraseTextScale(decoded.phraseTextScale || 100);
+    } else if (decoded.type === 'grid' && decoded.gridData && decoded.palette) {
+      setInputMode('image');
+      setImage(null);
+      setGridData(decoded.gridData);
+      setPalette(decoded.palette);
+      setHistory([]);
+    }
   }, []);
 
   // Text mode: render the phrase directly into the grid data, skipping the
@@ -1473,6 +1548,42 @@ export default function NeedlepointDesigner() {
         </div>
       )}
 
+      {/* Share-URL modal */}
+      {shareUrl && (
+        <div className="modal-overlay" onClick={() => setShareUrl(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div className="display-font glitter-text" style={{ fontSize: 24 }}>🔗 Share This Design</div>
+              <button onClick={() => setShareUrl(null)} className="btn-icon"><X size={18} /></button>
+            </div>
+            <div style={{ fontSize: 13, color: '#831843', marginBottom: 12, lineHeight: 1.5 }}>
+              Anyone with this link will open the design in their own Maker — same colors,
+              same project type, ready to edit or export. The whole pattern is encoded in
+              the URL (no account needed).
+            </div>
+            <div style={{
+              padding: 12, background: '#fff', border: '2px solid #5B1735', borderRadius: 12,
+              fontSize: 12, fontFamily: 'monospace', wordBreak: 'break-all',
+              maxHeight: 120, overflowY: 'auto', marginBottom: 12,
+            }}>
+              {shareUrl}
+            </div>
+            <button
+              onClick={copyShareUrl}
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
+            >
+              {shareCopied ? '✅ Copied!' : '📋 Copy to clipboard'}
+            </button>
+            <div style={{ marginTop: 10, fontSize: 11, color: '#831843', textAlign: 'center', lineHeight: 1.4 }}>
+              {shareUrl.length > 1200
+                ? '⚠️ This is a long URL (image-mode design). Some chat apps may truncate it. Save Supabase short-links is on the roadmap.'
+                : 'Share in iMessage, Slack, Discord — opens directly in the Maker.'}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Project picker modal */}
       {showProjectPicker && (
         <div className="modal-overlay" onClick={() => setShowProjectPicker(false)}>
@@ -1679,18 +1790,29 @@ export default function NeedlepointDesigner() {
           }}>
             Stitch &amp; Kit
           </h1>
-          <button
-            onClick={() => setShowHelp(true)}
-            className="btn"
-            style={{
-              marginTop: 18,
-              background: 'rgba(255,255,255,0.92)',
-              borderColor: '#5B1735',
-              color: '#5B1735',
-            }}
-          >
-            ❓ How does this work?
-          </button>
+          <div style={{ marginTop: 18, display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setShowHelp(true)}
+              className="btn"
+              style={{ background: 'rgba(255,255,255,0.92)', borderColor: '#5B1735', color: '#5B1735' }}
+            >
+              ❓ How does this work?
+            </button>
+            <a
+              href="/marketplace"
+              className="btn"
+              style={{ background: 'rgba(255,255,255,0.92)', borderColor: '#5B1735', color: '#5B1735', textDecoration: 'none' }}
+            >
+              🌸 Marketplace
+            </a>
+            <a
+              href="/"
+              className="btn"
+              style={{ background: 'rgba(255,255,255,0.92)', borderColor: '#5B1735', color: '#5B1735', textDecoration: 'none' }}
+            >
+              🏠 Home
+            </a>
+          </div>
         </div>
 
         <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 340px) 1fr', gap: 18, alignItems: 'start' }}>
@@ -2042,9 +2164,12 @@ export default function NeedlepointDesigner() {
 
             {gridData && (
               <div className="card">
-                <div className="section-label">💝 05 · Export</div>
+                <div className="section-label">💝 05 · Export &amp; Share</div>
                 <button className="btn btn-primary" onClick={() => setShowExportPicker(true)} style={{ width: '100%', justifyContent: 'center', marginBottom: 10 }}>
                   <Download size={14} />Export Options ✨
+                </button>
+                <button className="btn" onClick={generateShareUrl} style={{ width: '100%', justifyContent: 'center', marginBottom: 10 }}>
+                  🔗 Share This Design
                 </button>
                 <button className="btn" onClick={reset} style={{ width: '100%', justifyContent: 'center' }}>
                   <RotateCcw size={14} />Start Over
