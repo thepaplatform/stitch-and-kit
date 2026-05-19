@@ -2494,12 +2494,33 @@ export default function NeedlepointDesigner() {
                               fill="none" stroke="#EC4899" strokeWidth="2.5" strokeDasharray="6,3" />
                           </svg>
                         )}
-                        {editMode && showTrace && image && (
-                          <img src={image.src} alt="trace"
-                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                              objectFit: 'contain', opacity: traceOpacity,
-                              pointerEvents: 'none', mixBlendMode: 'multiply' }} />
-                        )}
+                        {editMode && showTrace && image && (() => {
+                          // Match processImage's draw math so the trace overlay
+                          // tracks designScale + designOffsetX exactly.
+                          const renderW = widthStitches * cellSize;
+                          const renderH = heightStitches * cellSize;
+                          const imgRatio = image.naturalWidth / image.naturalHeight;
+                          const canvasRatio = renderW / renderH;
+                          let drawW, drawH, drawX, drawY;
+                          if (imgRatio > canvasRatio) {
+                            drawW = renderW; drawH = renderW / imgRatio; drawX = 0; drawY = (renderH - drawH) / 2;
+                          } else {
+                            drawH = renderH; drawW = renderH * imgRatio; drawX = (renderW - drawW) / 2; drawY = 0;
+                          }
+                          const scale = designScale / 100;
+                          const scaledW = drawW * scale;
+                          const scaledH = drawH * scale;
+                          const offsetXpx = (renderW - scaledW) * (designOffsetX / 100);
+                          drawX = drawX + (drawW - scaledW) / 2 + offsetXpx;
+                          drawY = drawY + (drawH - scaledH) / 2;
+                          return (
+                            <img src={image.src} alt="trace"
+                              style={{ position: 'absolute',
+                                left: drawX, top: drawY, width: scaledW, height: scaledH,
+                                opacity: traceOpacity,
+                                pointerEvents: 'none', mixBlendMode: 'multiply' }} />
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
